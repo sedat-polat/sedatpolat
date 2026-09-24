@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       İşletmeBurada Panel
  * Description:       İşletme paneli tasarımını Voxel verisiyle çalışan Elementor widget'ları olarak ekler.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            İşletmeBurada
@@ -13,19 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IBP_VERSION', '0.1.0' );
+define( 'IBP_VERSION', '0.1.1' );
 define( 'IBP_FILE', __FILE__ );
 define( 'IBP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IBP_URL', plugin_dir_url( __FILE__ ) );
 
 require_once IBP_DIR . 'includes/class-ibp-work-hours.php';
 require_once IBP_DIR . 'includes/class-ibp-business.php';
+require_once IBP_DIR . 'includes/class-ibp-debug.php';
 
 add_action( 'plugins_loaded', 'ibp_boot' );
 
 function ibp_boot() {
 	add_action( 'template_redirect', array( 'IBP_Business', 'handle_switch' ) );
 	add_action( 'wp_enqueue_scripts', 'ibp_register_assets' );
+	IBP_Debug::init();
 
 	if ( ! did_action( 'elementor/loaded' ) ) {
 		add_action( 'admin_notices', 'ibp_notice_missing_elementor' );
