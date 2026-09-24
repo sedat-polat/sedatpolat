@@ -58,7 +58,8 @@ class IBP_Widget_Business_Card extends IBP_Widget_Base {
 		$settings = $this->get_settings_for_display();
 		$logo     = 'yes' === $settings['show_logo'] ? $business->logo_url() : '';
 		$subtitle = $business->subtitle();
-		$owned    = IBP_Business::owned_ids();
+		$owned     = IBP_Business::owned_ids();
+		$in_editor = IBP_Business::is_editor_preview();
 		?>
 		<div class="ibp ibp-card ibp-biz">
 			<div class="ibp-biz__row" title="<?php echo esc_attr( $business->name() ); ?>">
@@ -76,18 +77,21 @@ class IBP_Widget_Business_Card extends IBP_Widget_Base {
 			</div>
 
 			<?php if ( 'yes' === $settings['show_switcher'] && count( $owned ) > 1 ) : ?>
-				<form class="ibp-biz__switch" method="get">
+				<form class="ibp-biz__switch" method="get"<?php echo $in_editor ? ' onsubmit="return false"' : ''; ?>>
 					<?php foreach ( $this->kept_query_args() as $key => $value ) : ?>
 						<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>">
 					<?php endforeach; ?>
 					<input type="hidden" name="_ibpnonce" value="<?php echo esc_attr( wp_create_nonce( IBP_Business::NONCE ) ); ?>">
 					<label class="ibp-sr" for="ibp-switch-<?php echo esc_attr( $this->get_id() ); ?>">İşletme seç</label>
-					<select id="ibp-switch-<?php echo esc_attr( $this->get_id() ); ?>" class="ibp-select" name="ibp_isletme" onchange="this.form.submit()">
+					<?php // Elementor önizlemesinde kutu sayfayı değiştirmesin; yoksa önizleme düzenleyiciden kopar. ?>
+					<select id="ibp-switch-<?php echo esc_attr( $this->get_id() ); ?>" class="ibp-select" name="ibp_isletme" <?php echo $in_editor ? 'disabled title="Düzenleyicide işletme değiştirilemez"' : 'onchange="this.form.submit()"'; ?>>
 						<?php foreach ( $owned as $id ) : ?>
 							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $id, $business->id ); ?>><?php echo esc_html( get_the_title( $id ) ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<noscript><button type="submit" class="ibp-btn ibp-btn--sm">Değiştir</button></noscript>
+					<?php if ( ! $in_editor ) : ?>
+						<noscript><button type="submit" class="ibp-btn ibp-btn--sm">Değiştir</button></noscript>
+					<?php endif; ?>
 				</form>
 			<?php endif; ?>
 		</div>

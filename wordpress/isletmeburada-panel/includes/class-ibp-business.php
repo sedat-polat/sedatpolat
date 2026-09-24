@@ -110,6 +110,9 @@ class IBP_Business {
 		if ( ! isset( $_GET['ibp_isletme'], $_GET['_ibpnonce'] ) || ! is_user_logged_in() ) {
 			return;
 		}
+		if ( isset( $_GET['elementor-preview'] ) || self::is_editor_preview() ) {
+			return;
+		}
 		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_ibpnonce'] ) ), self::NONCE ) ) {
 			return;
 		}
