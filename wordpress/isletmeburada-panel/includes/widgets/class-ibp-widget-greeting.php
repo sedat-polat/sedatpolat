@@ -34,6 +34,15 @@ class IBP_Widget_Greeting extends IBP_Widget_Base {
 			)
 		);
 		$this->add_control(
+			'show_period',
+			array(
+				'label'       => 'Dönem seçici (7 / 30 / 90 gün)',
+				'description' => 'Sayfadaki grafik ve istatistik kartları seçilen döneme göre değişir.',
+				'type'        => Controls_Manager::SWITCHER,
+				'default'     => 'yes',
+			)
+		);
+		$this->add_control(
 			'extra',
 			array(
 				'label'       => 'Ek cümle',
@@ -70,8 +79,18 @@ class IBP_Widget_Greeting extends IBP_Widget_Base {
 		}
 		?>
 		<div class="ibp ibp-greet">
-			<div class="ibp-greet__title"><?php echo esc_html( $greet . ( $first_name ? ', ' . $first_name : '' ) . '.' ); ?></div>
-			<div class="ibp-greet__sub"><?php echo esc_html( $line ); ?></div>
+			<div>
+				<div class="ibp-greet__title"><?php echo esc_html( $greet . ( $first_name ? ', ' . $first_name : '' ) . '.' ); ?></div>
+				<div class="ibp-greet__sub"><?php echo esc_html( $line ); ?></div>
+			</div>
+			<?php if ( 'yes' === $settings['show_period'] ) : ?>
+				<?php $period = IBP_Tracker::period(); ?>
+				<div class="ibp-seg" role="group" aria-label="Dönem">
+					<?php foreach ( array( 7, 30, 90 ) as $days ) : ?>
+						<a class="ibp-seg__b<?php echo $days === $period ? ' is-on' : ''; ?>" href="<?php echo esc_url( $this->period_url( $days ) ); ?>"<?php echo $days === $period ? ' aria-current="true"' : ''; ?>><?php echo esc_html( $days . ' gün' ); ?></a>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

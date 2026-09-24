@@ -77,6 +77,57 @@ class IBP_Reviews {
 		return array_map( array( __CLASS__, 'map_row' ), (array) $rows );
 	}
 
+	/**
+	 * İşletme sahibinin henüz yanıtlamadığı yorum sayısı. Yanıt tablosu yoksa null.
+	 */
+	public static function unanswered( IBP_Business $business ) {
+		global $wpdb;
+		$columns = self::columns();
+		$replies = self::reply_columns();
+		if ( ! in_array( 'post_id', $columns, true ) || ! in_array( 'status_id', $replies, true ) || ! in_array( 'user_id', $replies, true ) ) {
+			return null;
+		}
+
+		$owner  = (int) $business->post->post_author;
+		$by_me  = $wpdb->prepare( 'r.user_id = %d', $owner );
+		if ( in_array( 'published_as', $replies, true ) ) {
+			// Voxel yanıtı "işletme adına" da yayınlayabilir.
+			$by_me = '(' . $by_me . $wpdb->prepare( ' OR r.published_as = %d', $business->id ) . ')';
+		}
+		$feed = in_array( 'feed', $columns, true ) ? $wpdb->prepare( ' AND t.feed = %s', 'post_reviews' ) : '';
+
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB
+			sprintf(
+				'SELECT COUNT(*) FROM `%1$s` t WHERE %2$s%3$s AND NOT EXISTS (SELECT 1 FROM `%4$s` r WHERE r.status_id = t.id AND %5$s)',
+				self::table(),
+				$wpdb->prepare( 't.post_id = %d', $business->id ),
+				$feed,
+				self::reply_table(),
+				$by_me
+			)
+		);
+	}
+
+	public static function reply_table() {
+		global $wpdb;
+		return apply_filters( 'ibp_review_replies_table', $wpdb->prefix . 'voxel_timeline_replies' );
+	}
+
+	public static function reply_columns() {
+		static $columns = null;
+		if ( null !== $columns ) {
+			return $columns;
+		}
+		global $wpdb;
+		$table = self::reply_table();
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) ) !== $table ) {
+			$columns = array();
+			return $columns;
+		}
+		$columns = (array) $wpdb->get_col( "SHOW COLUMNS FROM `{$table}`" ); // phpcs:ignore WordPress.DB
+		return $columns;
+	}
+
 	private static function map_row( array $row ) {
 		$user = ! empty( $row['user_id'] ) ? get_userdata( (int) $row['user_id'] ) : null;
 		$name = $user ? $user->display_name : 'Ziyaretçi';

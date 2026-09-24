@@ -24,7 +24,15 @@ class IBP_Business {
 	}
 
 	public static function post_type() {
-		return apply_filters( 'ibp_post_type', 'isletme' );
+		return apply_filters( 'ibp_post_type', IBP_Settings::get( 'post_type' ) ?: 'isletme' );
+	}
+
+	/**
+	 * @return IBP_Business|null
+	 */
+	public static function from_id( $id ) {
+		$post = get_post( (int) $id );
+		return ( $post && self::post_type() === $post->post_type ) ? new self( $post ) : null;
 	}
 
 	/* ---------------------------------------------------------------------
@@ -268,6 +276,9 @@ class IBP_Business {
 	 * @param string $template Widget'ta girilen adres; {id} işletme ID'si ile değişir.
 	 */
 	public function edit_url( $template = '' ) {
+		if ( ! $template ) {
+			$template = (string) IBP_Settings::get( 'edit_url' );
+		}
 		if ( $template ) {
 			return str_replace( '{id}', (string) $this->id, $template );
 		}
@@ -283,6 +294,35 @@ class IBP_Business {
 			}
 		}
 		return get_permalink( $this->post );
+	}
+
+	/**
+	 * Widget'lara girilen adreslerdeki kısayolları çözer:
+	 * {id} işletme ID'si, {edit} düzenleme adresi, {view} işletme sayfası.
+	 */
+	public function resolve_url( $url ) {
+		$url = (string) $url;
+		if ( false !== strpos( $url, '{edit}' ) ) {
+			$url = str_replace( '{edit}', $this->edit_url(), $url );
+		}
+		return str_replace( array( '{view}', '{id}' ), array( get_permalink( $this->post ), (string) $this->id ), $url );
+	}
+
+	public function permalink() {
+		return get_permalink( $this->post );
+	}
+
+	public function status_label() {
+		switch ( $this->post->post_status ) {
+			case 'publish':
+				return array( 'Profil yayında', '#10B981' );
+			case 'pending':
+				return array( 'Onay bekliyor', '#F59E0B' );
+			case 'draft':
+				return array( 'Taslak', '#9CA3AF' );
+			default:
+				return array( 'Gizli', '#9CA3AF' );
+		}
 	}
 
 	/* ---------------------------------------------------------------------
@@ -321,6 +361,68 @@ class IBP_Business {
 			'percent' => $items ? (int) round( 100 * $done / count( $items ) ) : 0,
 			'missing' => array_keys( array_filter( $items, function ( $ok ) { return ! $ok; } ) ),
 		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Bekleyen işler
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * İşletme sahibinin yapması gerekenler, önem sırasıyla.
+	 *
+	 * @param string $reviews_url Yorumlar sayfası adresi (kısayollar çözülür).
+	 * @return array[] Her biri: n (rozet), title, sub, url.
+	 */
+	public function todos( $reviews_url = '' ) {
+		$todos = array();
+		$edit  = $this->edit_url();
+
+		if ( 'pending' === $this->post->post_status ) {
+			$todos[] = array( 'n' => '!', 'title' => 'Profilin onay bekliyor', 'sub' => 'Onaylanınca aramalarda ve şehir sayfalarında görünür.', 'url' => $this->permalink() );
+		} elseif ( 'draft' === $this->post->post_status ) {
+			$todos[] = array( 'n' => '!', 'title' => 'Profilin taslakta', 'sub' => 'Yayına göndermeden ziyaretçiler seni göremez.', 'url' => $edit );
+		}
+
+		$unanswered = IBP_Reviews::unanswered( $this );
+		if ( $unanswered ) {
+			$todos[] = array(
+				'n'     => (string) $unanswered,
+				'title' => 'yorum yanıt bekliyor',
+				'sub'   => 'Hızlı yanıt, Şehrin Sahipleri sıralamasında öne çıkarır.',
+				'url'   => $reviews_url ? $this->resolve_url( $reviews_url ) : $this->permalink(),
+			);
+		}
+
+		$missing = $this->completeness()['missing'];
+		if ( $missing ) {
+			$todos[] = array(
+				'n'     => (string) count( $missing ),
+				'title' => 'profil alanı eksik',
+				'sub'   => implode( ', ', array_slice( $missing, 0, 3 ) ) . ( count( $missing ) > 3 ? ' ve diğerleri' : '' ),
+				'url'   => $edit,
+			);
+		}
+
+		$photos = count( self::attachment_ids( $this->field( 'gallery' ) ) );
+		if ( $photos < 5 ) {
+			$todos[] = array(
+				'n'     => (string) ( 5 - $photos ),
+				'title' => 'fotoğraf daha ekle',
+				'sub'   => sprintf( 'Galeride %d fotoğraf var; en az 5 fotoğraflı profiller daha çok tıklanıyor.', $photos ),
+				'url'   => $edit,
+			);
+		}
+
+		if ( 0 === $this->review_stats()['count'] ) {
+			$todos[] = array(
+				'n'     => '0',
+				'title' => 'İlk yorumunu topla',
+				'sub'   => 'Profil bağlantını müşterilerinle paylaş; sıralamaya girmek için yorum gerekiyor.',
+				'url'   => $this->permalink(),
+			);
+		}
+
+		return apply_filters( 'ibp_todos', $todos, $this );
 	}
 
 	/* ---------------------------------------------------------------------

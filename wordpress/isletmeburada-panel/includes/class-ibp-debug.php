@@ -19,7 +19,19 @@ class IBP_Debug {
 			return;
 		}
 
-		$business = IBP_Business::current();
+		echo '<pre id="ibp-debug" style="margin:24px;padding:16px;background:#1C1E21;color:#E6E8EB;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:12px;position:relative;z-index:99999">';
+		echo esc_html( self::json( self::report( IBP_Business::current() ) ) );
+		echo '</pre>';
+	}
+
+	public static function json( array $report ) {
+		return wp_json_encode( $report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * İşletmenin Voxel verisinin nasıl saklandığını gösteren rapor.
+	 */
+	public static function report( $business ) {
 		$report   = array(
 			'eklenti'     => IBP_VERSION,
 			'saat'        => wp_date( 'Y-m-d H:i l' ) . ' (' . wp_timezone_string() . ')',
@@ -60,12 +72,18 @@ class IBP_Debug {
 				'tablo'    => IBP_Reviews::table(),
 				'sutunlar' => IBP_Reviews::columns(),
 				'son'      => IBP_Reviews::recent( $business->id, 2 ),
+				'yanit_tablosu_sutunlar' => IBP_Reviews::reply_columns(),
+				'yanit_bekleyen' => IBP_Reviews::unanswered( $business ),
 			);
+			$report['sayac']   = array();
+			foreach ( array_keys( IBP_Tracker::TYPES ) as $type ) {
+				$report['sayac'][ $type ] = IBP_Tracker::summary( $business->id, $type, 30 );
+			}
+			$report['siralama']       = IBP_Ranking::for_business( $business );
+			$report['bekleyen_isler'] = wp_list_pluck( $business->todos(), 'title' );
 		}
 
-		echo '<pre id="ibp-debug" style="margin:24px;padding:16px;background:#1C1E21;color:#E6E8EB;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:12px;position:relative;z-index:99999">';
-		echo esc_html( wp_json_encode( $report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
-		echo '</pre>';
+		return $report;
 	}
 
 	private static function voxel_methods( IBP_Business $business ) {

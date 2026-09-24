@@ -174,6 +174,14 @@
 
 /* Karşılama ------------------------------------------------------------ */
 
+.ibp-greet {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
 .ibp-greet__title {
 	font-size: 26px;
 	font-weight: 700;
@@ -392,4 +400,821 @@
 .ibp .ibp-btn--ghost:hover {
 	background: var(--ibp-line);
 	color: var(--ibp-text-2);
+}
+
+.ibp .ibp-btn--primary {
+	gap: 8px;
+	border-color: var(--ibp-accent);
+	background: var(--ibp-accent);
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.ibp .ibp-btn--primary:hover {
+	background: #C2323A;
+	color: #FFFFFF;
+}
+
+.ibp a.ibp-btn {
+	text-decoration: none;
+}
+
+.ibp-card__sub {
+	margin-top: 3px;
+	font-size: 13px;
+	color: var(--ibp-muted);
+}
+
+.ibp-card__note {
+	margin-top: 12px;
+	font-size: 13px;
+	color: var(--ibp-muted);
+}
+
+/* Panel logosu --------------------------------------------------------- */
+
+.ibp.ibp-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 0 8px;
+	color: var(--ibp-text);
+	text-decoration: none;
+}
+
+.ibp-brand__mark {
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	background: var(--ibp-accent-soft);
+	color: #FFFFFF;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+}
+
+.ibp-brand__mark .ibp-i {
+	stroke-width: 2.2;
+}
+
+.ibp-brand__img {
+	height: 30px;
+	width: auto;
+}
+
+.ibp-brand__text {
+	font-size: 17px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	white-space: nowrap;
+}
+
+/* Panel menüsü --------------------------------------------------------- */
+
+.ibp-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.ibp-nav__group {
+	margin: 16px 0 4px;
+	padding: 0 10px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	color: #A0A6AE;
+}
+
+.ibp .ibp-nav__item {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	height: 34px;
+	padding: 0 10px;
+	border-radius: 9px;
+	font-size: 13.5px;
+	font-weight: 500;
+	color: #4B5563;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background 0.12s, color 0.12s;
+}
+
+.ibp-nav__item .ibp-i {
+	width: 17px;
+	height: 17px;
+	stroke-width: 1.7;
+	color: var(--ibp-faint);
+	transition: color 0.12s;
+}
+
+.ibp .ibp-nav__item:hover {
+	background: #F2F3F5;
+	color: var(--ibp-text);
+}
+
+.ibp .ibp-nav__item:hover .ibp-i {
+	color: var(--ibp-muted);
+}
+
+.ibp .ibp-nav__item.is-on {
+	background: #FFFFFF;
+	color: var(--ibp-text);
+	font-weight: 600;
+	box-shadow: 0 0 0 1px #EEF0F2, 0 1px 3px rgba(28, 30, 33, 0.06);
+}
+
+.ibp-nav__item.is-on .ibp-i {
+	color: var(--ibp-accent);
+}
+
+.ibp .ibp-nav__item:focus-visible {
+	outline: 2px solid var(--ibp-text);
+	outline-offset: 2px;
+}
+
+.ibp .ibp-nav__item.is-soon {
+	cursor: default;
+	color: var(--ibp-faint);
+}
+
+.ibp .ibp-nav__item.is-soon:hover {
+	background: transparent;
+	color: var(--ibp-faint);
+}
+
+.ibp-nav__label {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ibp-nav__badge {
+	min-width: 20px;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 9px;
+	background: #FFE9EA;
+	color: #C2323A;
+	font-size: 11px;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ibp-nav__soon {
+	font-size: 10.5px;
+	font-weight: 600;
+	color: var(--ibp-faint);
+	background: var(--ibp-line);
+	border-radius: 6px;
+	padding: 1px 6px;
+}
+
+/* Profil durumu -------------------------------------------------------- */
+
+.ibp-pstatus {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+	border-color: #EEF0F2;
+}
+
+.ibp-pstatus__row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--ibp-text-2);
+}
+
+.ibp-pstatus__dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex: none;
+}
+
+.ibp-pstatus__label {
+	flex: 1;
+	white-space: nowrap;
+}
+
+.ibp-pstatus__pct {
+	font-weight: 500;
+	color: var(--ibp-faint);
+}
+
+.ibp-bar--thin {
+	height: 5px;
+}
+
+.ibp .ibp-pstatus__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	align-self: flex-start;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: #4B5563;
+	text-decoration: none;
+	border-radius: 6px;
+}
+
+.ibp .ibp-pstatus__link:hover {
+	color: var(--ibp-accent);
+}
+
+/* Üst bar -------------------------------------------------------------- */
+
+.ibp-topbar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 72px;
+	padding: 12px 32px 12px 24px;
+	background: #FFFFFF;
+	border-bottom: 1px solid var(--ibp-border);
+}
+
+.ibp-topbar__titles {
+	flex: 1;
+	min-width: 0;
+}
+
+.ibp .ibp-topbar__title {
+	margin: 0;
+	font-size: 19px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.3;
+	color: var(--ibp-text);
+}
+
+.ibp-topbar__sub {
+	margin-top: 2px;
+	font-size: 13px;
+	color: var(--ibp-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* .ibp .ibp-icb'den güçlü olmalı; yoksa düğme masaüstünde de görünür. */
+.ibp .ibp-icb.ibp-topbar__menu {
+	display: none;
+}
+
+.ibp .ibp-icb {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	border: 1px solid var(--ibp-border);
+	background: #FFFFFF;
+	color: var(--ibp-text-2);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	position: relative;
+	flex: none;
+	padding: 0;
+}
+
+.ibp .ibp-icb:hover {
+	background: var(--ibp-hover);
+}
+
+.ibp-icb__dot {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 9px;
+	border: 2px solid #FFFFFF;
+	background: var(--ibp-accent);
+	color: #FFFFFF;
+	font-size: 10.5px;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: content-box;
+}
+
+.ibp-topbar__user {
+	position: relative;
+}
+
+.ibp .ibp-topbar__avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: 0;
+	padding: 0;
+	background: var(--ibp-text);
+	color: #FFFFFF;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.ibp .ibp-topbar__avatar:focus-visible,
+.ibp .ibp-icb:focus-visible,
+.ibp .ibp-seg__b:focus-visible,
+.ibp .ibp-todo:focus-visible,
+.ibp .ibp-dd__item:focus-visible {
+	outline: 2px solid var(--ibp-text);
+	outline-offset: 2px;
+}
+
+.ibp-dd {
+	position: absolute;
+	top: 48px;
+	right: 0;
+	z-index: 40;
+	width: 240px;
+	padding: 6px;
+	background: #FFFFFF;
+	border: 1px solid var(--ibp-border);
+	border-radius: 12px;
+	box-shadow: 0 2px 4px rgba(28, 30, 33, 0.04), 0 12px 32px rgba(28, 30, 33, 0.12);
+}
+
+.ibp-dd[hidden] {
+	display: none;
+}
+
+.ibp-dd__head {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 8px 12px 10px;
+	margin-bottom: 4px;
+	border-bottom: 1px solid var(--ibp-line);
+	font-size: 14px;
+}
+
+.ibp-dd__head span {
+	font-size: 12px;
+	color: var(--ibp-muted);
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ibp .ibp-dd__item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 40px;
+	padding: 0 12px;
+	border-radius: 8px;
+	font-size: 14px;
+	color: var(--ibp-text);
+	text-decoration: none;
+}
+
+.ibp .ibp-dd__item:hover {
+	background: var(--ibp-hover);
+	color: var(--ibp-text);
+}
+
+.ibp-dd__item .ibp-i {
+	width: 16px;
+	height: 16px;
+	color: var(--ibp-muted);
+}
+
+/* Dönem seçici --------------------------------------------------------- */
+
+.ibp-seg {
+	display: inline-flex;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 9px;
+	background: var(--ibp-line);
+}
+
+.ibp .ibp-seg__b {
+	display: inline-flex;
+	align-items: center;
+	height: 32px;
+	padding: 0 12px;
+	border-radius: 7px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--ibp-text-2);
+	text-decoration: none;
+}
+
+.ibp .ibp-seg__b.is-on {
+	background: #FFFFFF;
+	color: var(--ibp-text);
+	box-shadow: 0 1px 2px rgba(28, 30, 33, 0.08);
+}
+
+/* Grafik --------------------------------------------------------------- */
+
+.ibp-bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 220px;
+	border-bottom: 1px solid var(--ibp-border);
+	background-image: linear-gradient(var(--ibp-line) 1px, transparent 1px);
+	background-size: 100% 25%;
+}
+
+.ibp-bars--dense {
+	gap: 1px;
+}
+
+.ibp-bars__col {
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+}
+
+.ibp-bars__col i {
+	display: block;
+	width: 100%;
+	border-radius: 3px 3px 0 0;
+	background: #FF8A8E;
+}
+
+.ibp-bars__col i.is-today {
+	background: var(--ibp-accent);
+}
+
+.ibp-bars__col:hover i {
+	filter: brightness(0.85);
+}
+
+.ibp-bars__ticks {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--ibp-muted);
+}
+
+/* Şehrin Sahipleri ----------------------------------------------------- */
+
+.ibp.ibp-rank {
+	--ibp-rank-accent: #FF8A8E;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	height: 100%;
+	padding: 20px;
+	border-radius: 12px;
+	background: var(--ibp-text);
+	color: #FFFFFF;
+}
+
+.ibp-rank__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ibp-rank__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.ibp-rank__title .ibp-i {
+	color: var(--ibp-rank-accent);
+}
+
+.ibp-rank__scope,
+.ibp-rank__gap,
+.ibp-rank__note,
+.ibp-rank__empty {
+	font-size: 12px;
+	color: #C9CDD2;
+}
+
+.ibp-rank__hero {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+}
+
+.ibp-rank__num {
+	font-size: 56px;
+	font-weight: 800;
+	letter-spacing: -0.05em;
+	line-height: 1;
+	color: var(--ibp-rank-accent);
+}
+
+.ibp-rank__line {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.ibp-rank__gap {
+	margin-top: 2px;
+	font-size: 13px;
+}
+
+.ibp-rank__empty {
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.ibp-rank__board {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.ibp-rank__row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 32px;
+	padding: 0 10px;
+	border-radius: 7px;
+	font-size: 13px;
+}
+
+.ibp-rank__row.is-me {
+	background: rgba(255, 90, 95, 0.22);
+	font-weight: 700;
+}
+
+.ibp-rank__pos {
+	width: 16px;
+	color: var(--ibp-faint);
+	font-weight: 600;
+}
+
+.ibp-rank__name {
+	flex: 1;
+	min-width: 0;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ibp-rank__row.is-me .ibp-rank__name {
+	font-weight: 700;
+}
+
+.ibp-rank__district {
+	color: var(--ibp-faint);
+	white-space: nowrap;
+}
+
+.ibp-rank__score {
+	width: 32px;
+	text-align: right;
+	font-weight: 700;
+}
+
+.ibp-rank__note {
+	margin-top: auto;
+	padding-top: 12px;
+	border-top: 1px solid var(--ibp-text-2);
+	line-height: 1.5;
+}
+
+/* Bekleyen işler ------------------------------------------------------- */
+
+.ibp-todos {
+	padding: 10px 0 8px;
+}
+
+.ibp-todos__empty {
+	padding: 10px 20px 12px;
+}
+
+.ibp .ibp-todo {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 20px;
+	color: var(--ibp-text);
+	text-decoration: none;
+}
+
+.ibp .ibp-todo:hover {
+	background: var(--ibp-hover);
+	color: var(--ibp-text);
+}
+
+.ibp-todo__n {
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	background: #FFF1F1;
+	color: var(--ibp-accent);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 13px;
+	font-weight: 700;
+	flex: none;
+}
+
+.ibp-todo__text {
+	flex: 1;
+	min-width: 0;
+}
+
+.ibp-todo__title {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.ibp-todo__sub {
+	display: block;
+	margin-top: 2px;
+	font-size: 12px;
+	color: var(--ibp-muted);
+}
+
+/* Etkileşim dağılımı --------------------------------------------------- */
+
+.ibp-funnel__head {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 6px;
+	font-size: 13px;
+	color: var(--ibp-text-2);
+}
+
+.ibp-funnel__head strong {
+	color: var(--ibp-text);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Panel düzeni: "ibp-sidebar" sınıflı container ------------------------ */
+
+@media (min-width: 1025px) {
+	.ibp-sidebar {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+		overflow-y: auto;
+		scrollbar-width: thin;
+		scrollbar-color: transparent transparent;
+	}
+
+	.ibp-sidebar:hover {
+		scrollbar-color: var(--ibp-border-2, #DADDE1) transparent;
+	}
+
+	.admin-bar .ibp-sidebar {
+		top: 32px;
+		height: calc(100vh - 32px);
+	}
+}
+
+/* Tablet ve mobil: sol menü çekmeceye dönüşür ---------------------------- */
+
+@media (max-width: 1024px) {
+	.ibp .ibp-icb.ibp-topbar__menu {
+		display: inline-flex;
+	}
+
+	.ibp-topbar {
+		padding: 12px 16px;
+		min-height: 64px;
+	}
+
+	.ibp-sidebar {
+		position: fixed !important;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		z-index: 1000;
+		width: 280px !important;
+		max-width: 86vw;
+		overflow-y: auto;
+		transform: translateX(-105%);
+		transition: transform 0.22s ease;
+		box-shadow: 0 12px 32px rgba(28, 30, 33, 0.18);
+	}
+
+	.ibp-nav-open .ibp-sidebar {
+		transform: none;
+	}
+
+	.ibp-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 999;
+		background: rgba(28, 30, 33, 0.4);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.22s ease;
+	}
+
+	.ibp-nav-open .ibp-overlay {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.ibp-nav-open {
+		overflow: hidden;
+	}
+
+	/* Elementor editöründe çekmece gizlenmesin, düzenlenebilsin. */
+	.elementor-editor-active .ibp-sidebar {
+		position: relative !important;
+		transform: none;
+		width: 100% !important;
+		max-width: none;
+		box-shadow: none;
+	}
+}
+
+@media (max-width: 767px) {
+	.ibp-topbar__sub,
+	.ibp-hide-mobile {
+		display: none;
+	}
+
+	.ibp .ibp-topbar__title {
+		font-size: 17px;
+	}
+
+	.ibp-topbar__cta span {
+		display: none;
+	}
+
+	.ibp .ibp-topbar__cta {
+		width: 40px;
+		padding: 0;
+	}
+
+	.ibp-greet__title {
+		font-size: 22px;
+	}
+
+	.ibp-greet .ibp-seg {
+		width: 100%;
+	}
+
+	.ibp-greet .ibp-seg__b {
+		flex: 1;
+		justify-content: center;
+	}
+
+	.ibp-stat__value {
+		font-size: 24px;
+	}
+
+	.ibp-card__head,
+	.ibp-card__body {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.ibp .ibp-todo {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.ibp-rank__num {
+		font-size: 44px;
+	}
+
+	.ibp-rank__district {
+		display: none;
+	}
+
+	.ibp-dd {
+		width: min(240px, calc(100vw - 32px));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ibp-sidebar,
+	.ibp-overlay,
+	.ibp-nav__item {
+		transition: none;
+	}
 }

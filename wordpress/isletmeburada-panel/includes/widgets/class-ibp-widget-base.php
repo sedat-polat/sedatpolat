@@ -20,6 +20,10 @@ abstract class IBP_Widget_Base extends Widget_Base {
 		return array( 'ibp-panel' );
 	}
 
+	public function get_script_depends() {
+		return array( 'ibp-panel' );
+	}
+
 	public function get_keywords() {
 		return array( 'isletme', 'panel', 'voxel', 'isletmeburada' );
 	}
@@ -48,6 +52,13 @@ abstract class IBP_Widget_Base extends Widget_Base {
 			)
 		);
 		$this->end_controls_section();
+	}
+
+	/**
+	 * Aynı sayfanın belirli bir dönemle açılan adresi (?donem=7|30|90).
+	 */
+	protected function period_url( $days ) {
+		return add_query_arg( 'donem', (int) $days, remove_query_arg( array( 'ibp_isletme', '_ibpnonce' ) ) );
 	}
 
 	/**
