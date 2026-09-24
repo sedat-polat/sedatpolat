@@ -1,0 +1,303 @@
+/* İşletmeBurada Panel — değerler "İşletme Paneli" tasarımından alındı. */
+
+.ibp {
+	--ibp-accent: #D93A40;
+	--ibp-accent-soft: #FF5A5F;
+	--ibp-card: #FFFFFF;
+	--ibp-text: #1C1E21;
+	--ibp-text-2: #3A3F45;
+	--ibp-muted: #6B7280;
+	--ibp-faint: #9CA3AF;
+	--ibp-border: #E6E8EB;
+	--ibp-border-2: #DADDE1;
+	--ibp-line: #F1F3F5;
+	--ibp-hover: #F7F8FA;
+	--ibp-up: #15803D;
+	--ibp-down: #B42318;
+
+	box-sizing: border-box;
+	color: var(--ibp-text);
+	font-family: inherit;
+	line-height: 1.4;
+}
+
+.ibp *,
+.ibp *::before,
+.ibp *::after {
+	box-sizing: border-box;
+}
+
+.ibp-sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* Kart --------------------------------------------------------------- */
+
+.ibp-card {
+	background: var(--ibp-card);
+	border: 1px solid var(--ibp-border);
+	border-radius: 12px;
+}
+
+.ibp-card__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 18px 20px 0;
+}
+
+.ibp-card__title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--ibp-text);
+}
+
+.ibp-card__body {
+	padding: 18px 20px 20px;
+}
+
+.ibp-stack {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.ibp-empty {
+	padding: 18px 20px;
+	font-size: 14px;
+	color: var(--ibp-muted);
+}
+
+.ibp-i {
+	width: 18px;
+	height: 18px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	flex: none;
+}
+
+.ibp-i--sm {
+	width: 15px;
+	height: 15px;
+}
+
+/* İşletme kartı -------------------------------------------------------- */
+
+.ibp-biz {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 10px;
+	border-color: #EEF0F2;
+}
+
+.ibp-biz__row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.ibp-biz__logo {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	flex: none;
+	object-fit: cover;
+}
+
+.ibp-biz__logo--ini {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--ibp-text);
+	color: #FFFFFF;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.ibp-biz__text {
+	flex: 1;
+	min-width: 0;
+}
+
+.ibp-biz__name,
+.ibp-biz__sub {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ibp-biz__name {
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.ibp-biz__sub {
+	font-size: 12px;
+	color: var(--ibp-faint);
+}
+
+.ibp-select {
+	width: 100%;
+	height: 32px;
+	padding: 0 8px;
+	border: 1px solid #EEF0F2;
+	border-radius: 8px;
+	background-color: var(--ibp-hover);
+	color: var(--ibp-text-2);
+	font: inherit;
+	font-size: 12.5px;
+	cursor: pointer;
+}
+
+.ibp-select:focus {
+	outline: none;
+	border-color: var(--ibp-accent-soft);
+	box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.18);
+}
+
+/* Karşılama ------------------------------------------------------------ */
+
+.ibp-greet__title {
+	font-size: 26px;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+}
+
+.ibp-greet__sub {
+	margin-top: 4px;
+	font-size: 14px;
+	color: var(--ibp-muted);
+}
+
+/* Profil doluluğu ------------------------------------------------------ */
+
+.ibp-comp__pct {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.ibp-bar {
+	height: 8px;
+	border-radius: 4px;
+	background: var(--ibp-line);
+	overflow: hidden;
+}
+
+.ibp-bar > i {
+	display: block;
+	height: 100%;
+	border-radius: 4px;
+	background: var(--ibp-accent-soft);
+}
+
+.ibp .ibp-opt {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	padding: 0 12px;
+	border: 1px solid var(--ibp-border);
+	border-radius: 8px;
+	background: #FFFFFF;
+	color: var(--ibp-text);
+	font-size: 14px;
+	text-decoration: none;
+}
+
+.ibp .ibp-opt:hover {
+	background: var(--ibp-hover);
+	color: var(--ibp-text);
+}
+
+.ibp .ibp-opt:focus-visible {
+	outline: 2px solid var(--ibp-text);
+	outline-offset: 2px;
+}
+
+.ibp-opt .ibp-i {
+	color: var(--ibp-accent);
+}
+
+.ibp-comp__full {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--ibp-up);
+}
+
+/* İstatistik kartı ----------------------------------------------------- */
+
+.ibp-stat {
+	padding: 18px 20px;
+}
+
+.ibp-stat__label {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--ibp-muted);
+}
+
+.ibp-stat__value {
+	margin-top: 8px;
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	font-variant-numeric: tabular-nums;
+}
+
+.ibp-stat__note {
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--ibp-muted);
+}
+
+.ibp-stat__note > span {
+	font-weight: 700;
+}
+
+.ibp-tone--up {
+	color: var(--ibp-up);
+}
+
+.ibp-tone--down {
+	color: var(--ibp-down);
+}
+
+.ibp-tone--neutral {
+	color: var(--ibp-muted);
+}
+
+/* Düğme ---------------------------------------------------------------- */
+
+.ibp-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 40px;
+	padding: 0 16px;
+	border: 1px solid var(--ibp-border-2);
+	border-radius: 8px;
+	background: #FFFFFF;
+	color: var(--ibp-text);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.ibp-btn--sm {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+}
