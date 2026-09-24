@@ -56,6 +56,11 @@ class IBP_Debug {
 			$report['yorum']        = $business->review_stats();
 			$report['doluluk']      = $business->completeness_items();
 			$report['voxel_metodlar'] = self::voxel_methods( $business );
+			$report['yorum_tablosu']  = array(
+				'tablo'    => IBP_Reviews::table(),
+				'sutunlar' => IBP_Reviews::columns(),
+				'son'      => IBP_Reviews::recent( $business->id, 2 ),
+			);
 		}
 
 		echo '<pre id="ibp-debug" style="margin:24px;padding:16px;background:#1C1E21;color:#E6E8EB;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:12px;position:relative;z-index:99999">';

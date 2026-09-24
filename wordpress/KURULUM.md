@@ -37,7 +37,7 @@ Bu eklenti, İşletme Paneli tasarımını Elementor widget'ları olarak ekler. 
    - Sol menüye: **İşletme Kartı**. Altına Voxel'in **Navbar** widget'ını menü için ekle.
    - İçeriğe: **Karşılama**.
    - Altına 4 sütunlu bir container ve içine 4 adet **İstatistik Kartı**. Örneğin biri "Ortalama puan", biri "Yorum sayısı".
-   - Sağ tarafa ya da alta: **Profil Doluluğu**.
+   - Sağ tarafa ya da alta: **Profil Doluluğu** ve **Son Yorumlar**.
 6. **Görünürlük**: İçerik container'ını seç → **Gelişmiş → Display Conditions** → "Giriş yapmış kullanıcı" koşulunu ekle.
 
 ## 4. Kontrol et ve bana bildir
@@ -60,5 +60,6 @@ Bir şey yanlışsa ekran görüntüsünü gönder, düzeltelim.
 | Karşılama | Kullanıcının adı, tarih, Çalışma Saatleri alanından bugünün saatleri |
 | İstatistik Kartı | Ortalama puan, yorum sayısı, galeri fotoğraf sayısı ya da elle yazılan değer |
 | Profil Doluluğu | 13 alanın kaçının dolu olduğu, eksik alanlar |
+| Son Yorumlar | İşletmeye gelen son Voxel yorumları: kişi, yıldız, tarih, metin |
 
-Sırada: profil görüntüleme grafiği, son yorumlar, Şehrin Sahipleri sıralaması.
+Sırada: profil görüntüleme grafiği, Şehrin Sahipleri sıralaması.
