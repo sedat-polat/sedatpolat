@@ -186,8 +186,44 @@ class IBP_Business {
 	}
 
 	public function subtitle() {
-		$parts = array_filter( array( $this->term_by_label( 'Şehir' ), $this->term_by_label( 'Kategori' ) ) );
+		$parts = array_filter( array( $this->city(), $this->term_by_label( 'Kategori' ) ) );
 		return implode( ', ', $parts );
+	}
+
+	/**
+	 * Şehir terimi; atanmamışsa konum adresinden çıkarılan şehir.
+	 */
+	public function city() {
+		$term = $this->term_by_label( 'Şehir' );
+		if ( '' !== $term ) {
+			return $term;
+		}
+		$location = $this->field( 'location' );
+		if ( is_string( $location ) ) {
+			$location = json_decode( $location, true );
+		}
+		return is_array( $location ) ? self::city_from_address( (string) ( $location['address'] ?? '' ) ) : '';
+	}
+
+	/**
+	 * "Moda Cd. No:5, 34710 Kadıköy/İstanbul, Türkiye" → "İstanbul"
+	 * "İzmir, Ege Bölgesi, Türkiye" → "İzmir"
+	 */
+	public static function city_from_address( $address ) {
+		$parts = array_filter(
+			array_map( 'trim', explode( ',', $address ) ),
+			function ( $part ) {
+				$lower = self::lower_tr( $part );
+				return '' !== $part
+					&& ! in_array( $lower, array( 'türkiye', 'turkey', 'turkiye' ), true )
+					&& ! preg_match( '/bölgesi$|region$/u', $lower );
+			}
+		);
+		if ( ! $parts ) {
+			return '';
+		}
+		$last = explode( '/', end( $parts ) );
+		return trim( preg_replace( '/^\d{5}\s*/', '', end( $last ) ) );
 	}
 
 	/**
