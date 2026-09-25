@@ -1,6 +1,7 @@
 <?php
 /**
- * WordPress yönetim menüsü: İşletmeBurada → Durum / Ayarlar / Tanılama.
+ * WordPress yönetim menüsü: İşletmeBurada → Genel bakış, Widget'lar, Sektörler,
+ * Marka ağı, Ayarlar, Tanılama (her biri yan menüde ayrı alt sayfa).
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,15 +18,56 @@ class IBP_Admin {
 		add_action( 'admin_post_ibp_create_pages', array( __CLASS__, 'create_pages' ) );
 		add_action( 'admin_post_ibp_flush_ranking', array( __CLASS__, 'flush_ranking' ) );
 		add_action( 'admin_post_ibp_create_home', array( __CLASS__, 'create_home' ) );
+		add_action( 'admin_post_ibp_save_widgets', array( 'IBP_Widgets', 'save' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( IBP_FILE ), array( __CLASS__, 'action_links' ) );
+	}
+
+	/**
+	 * Alt sayfalar: sekme anahtarı => menüdeki ad.
+	 */
+	public static function pages() {
+		return array(
+			'status'   => 'Genel bakış',
+			'widgets'  => 'Widget\'lar',
+			'sectors'  => 'Sektörler',
+			'network'  => 'Marka ağı',
+			'settings' => 'Ayarlar',
+			'debug'    => 'Tanılama',
+		);
 	}
 
 	public static function menu() {
 		add_menu_page( 'İşletmeBurada Panel', 'İşletmeBurada', 'manage_options', self::SLUG, array( __CLASS__, 'render' ), 'dashicons-store', 58 );
+		foreach ( self::pages() as $tab => $label ) {
+			add_submenu_page( self::SLUG, $label . ' — İşletmeBurada', $label, 'manage_options', self::slug_for( $tab ), array( __CLASS__, 'render' ) );
+		}
+	}
+
+	private static function slug_for( $tab ) {
+		return 'status' === $tab ? self::SLUG : self::SLUG . '-' . $tab;
+	}
+
+	private static function current_tab() {
+		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : self::SLUG; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		foreach ( array_keys( self::pages() ) as $tab ) {
+			if ( self::slug_for( $tab ) === $page ) {
+				return $tab;
+			}
+		}
+		return 'status';
+	}
+
+	public static function assets( $hook ) {
+		if ( false === strpos( (string) $hook, self::SLUG ) ) {
+			return;
+		}
+		wp_enqueue_style( 'ibp-admin', IBP_URL . 'assets/admin.css', array(), IBP_VERSION );
+		wp_enqueue_script( 'ibp-admin', IBP_URL . 'assets/admin.js', array(), IBP_VERSION, true );
 	}
 
 	public static function action_links( $links ) {
-		array_unshift( $links, '<a href="' . esc_url( self::url() ) . '">Durum ve ayarlar</a>' );
+		array_unshift( $links, '<a href="' . esc_url( self::url() ) . '">Genel bakış</a>', '<a href="' . esc_url( self::url( 'widgets' ) ) . '">Widget\'lar</a>' );
 		return $links;
 	}
 
@@ -33,8 +75,8 @@ class IBP_Admin {
 		register_setting( 'ibp_settings_group', IBP_Settings::OPTION, array( 'sanitize_callback' => array( 'IBP_Settings', 'sanitize' ) ) );
 	}
 
-	private static function url( $tab = 'status', array $args = array() ) {
-		return add_query_arg( array_merge( array( 'page' => self::SLUG, 'tab' => $tab ), $args ), admin_url( 'admin.php' ) );
+	public static function url( $tab = 'status', array $args = array() ) {
+		return add_query_arg( array_merge( array( 'page' => self::slug_for( $tab ) ), $args ), admin_url( 'admin.php' ) );
 	}
 
 	/* ---------------------------------------------------------------------
@@ -90,26 +132,24 @@ class IBP_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$tab  = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'status'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tabs = array(
-			'status'   => 'Durum',
-			'sectors'  => 'Sektörler',
-			'network'  => 'Marka ağı',
-			'settings' => 'Ayarlar',
-			'debug'    => 'Tanılama',
-		);
+		$tab   = self::current_tab();
+		$pages = self::pages();
 		?>
 		<div class="wrap ibp-admin">
-			<h1>İşletmeBurada Panel <span style="font-size:13px;color:#6B7280;font-weight:400">sürüm <?php echo esc_html( IBP_VERSION ); ?></span></h1>
+			<div class="ibp-admin__bar">
+				<span class="ibp-admin__logo"><span class="dashicons dashicons-store"></span></span>
+				<div>
+					<h1><?php echo esc_html( $pages[ $tab ] ); ?></h1>
+					<span class="ibp-admin__crumb">İşletmeBurada Panel · sürüm <?php echo esc_html( IBP_VERSION ); ?></span>
+				</div>
+			</div>
 			<?php self::notice(); ?>
-			<nav class="nav-tab-wrapper">
-				<?php foreach ( $tabs as $key => $label ) : ?>
-					<a class="nav-tab<?php echo $key === $tab ? ' nav-tab-active' : ''; ?>" href="<?php echo esc_url( self::url( $key ) ); ?>"><?php echo esc_html( $label ); ?></a>
-				<?php endforeach; ?>
-			</nav>
-			<div style="margin-top:20px;max-width:1100px">
+			<div class="ibp-admin__body">
 				<?php
 				switch ( $tab ) {
+					case 'widgets':
+						self::render_widgets();
+						break;
 					case 'settings':
 						self::render_settings();
 						break;
@@ -137,6 +177,7 @@ class IBP_Admin {
 			'flushed'      => array( 'success', 'Şehrin Sahipleri sıralaması yeniden hesaplanacak.' ),
 			'home'         => array( 'success', 'Ana sayfa taslağı hazır. Önizleyip beğenirsen Ayarlar → Okuma → "Ana sayfa" olarak seç.' ),
 			'no-elementor' => array( 'error', 'Sayfa oluşturmak için Elementor etkin olmalı.' ),
+			'widgets'      => array( 'success', 'Widget ayarları kaydedildi. Kapatılan widget\'lar Elementor\'da artık görünmez.' ),
 		);
 		$key = isset( $_GET['ibp_msg'] ) ? sanitize_key( $_GET['ibp_msg'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $messages[ $key ] ) ) {
@@ -214,16 +255,12 @@ class IBP_Admin {
 		</form>
 		<p class="description">Arama ve şehir kartlarının doğru sonuca gitmesi için <strong>Ayarlar → Arama sayfası</strong> alanını doldur.</p>
 
+		<?php
+		$all      = IBP_Widgets::all();
+		$disabled = IBP_Widgets::disabled();
+		?>
 		<h2 style="margin-top:28px">Widget'lar</h2>
-		<p>Elementor'da <strong>İşletmeBurada</strong> başlığı altında bulunur.</p>
-		<table class="widefat striped" style="max-width:800px">
-			<thead><tr><th>Widget</th><th>Ne gösterir</th></tr></thead>
-			<tbody>
-				<?php foreach ( self::widget_list() as $name => $description ) : ?>
-					<tr><td><strong><?php echo esc_html( $name ); ?></strong></td><td><?php echo esc_html( $description ); ?></td></tr>
-				<?php endforeach; ?>
-			</tbody>
-		</table>
+		<p><?php echo esc_html( sprintf( '%d widget\'tan %d tanesi açık.', count( $all ), count( $all ) - count( $disabled ) ) ); ?> <a href="<?php echo esc_url( self::url( 'widgets' ) ); ?>">Widget'ları yönet →</a></p>
 
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:20px">
 			<input type="hidden" name="action" value="ibp_flush_ranking">
@@ -234,36 +271,101 @@ class IBP_Admin {
 		<?php
 	}
 
-	public static function widget_list() {
-		return array(
-			'Panel Logosu'       => 'Sol menünün tepesindeki logo ve site adı.',
-			'İşletme Kartı'      => 'Logo, işletme adı, şehir ve kategori; birden fazla işletmede seçme kutusu.',
-			'Panel Menüsü'       => 'Gruplu sol menü, ikonlar, rozetler, aktif sayfa vurgusu, "Yakında" öğeleri.',
-			'Profil Durumu'      => 'Yayın durumu, doluluk çubuğu ve "Profili önizle".',
-			'Üst Bar'            => 'Sayfa başlığı, ana düğme, bildirim zili, kullanıcı menüsü; mobilde menü düğmesi.',
-			'Karşılama'          => 'Selamlama, tarih, bugünün çalışma saatleri ve 7/30/90 gün seçici.',
-			'İstatistik Kartı'   => 'Görüntüleme, arama, yol tarifi, web sitesi tıklaması, puan, yorum sayısı; önceki döneme göre değişim.',
-			'Grafik'             => 'Seçilen verinin günlük çubuk grafiği.',
-			'Şehrin Sahipleri'   => 'Aynı şehir ve kategorideki işletmeler arasında sıralama.',
-			'Bekleyen İşler'     => 'Onay durumu, yanıt bekleyen yorumlar, eksik alanlar, fotoğraf önerisi.',
-			'Son Yorumlar'       => 'Son Voxel yorumları: kişi, yıldız, tarih, metin.',
-			'Profil Doluluğu'    => '13 alandan kaçının dolu olduğu ve eksikler.',
-			'Etkileşim Dağılımı' => 'Görüntüleyenlerin ne kadarının aradığı, yol tarifi aldığı ya da siteye gittiği.',
-			'Bağlı İşletmeler'   => 'Marka için bağlanma istekleri ve şube/bayi/franchise listesi; alt işletme için "markaya bağlan".',
-			'Kullanıcı Kartı'    => 'Bireysel panel: avatar, ad, yerel rehber seviyesi ve ilerleme.',
-			'Kişisel İstatistik' => 'Bireysel panel: yorum, favori, takip, rezervasyon sayısı ya da rehber puanı.',
-			'Kişisel Liste'      => 'Bireysel panel: Yorumlarım, Favorilerim, Takip ettiklerim ya da Rezervasyon ve siparişlerim.',
-			'Hızlı Git'          => 'İkonlu kısayol kutuları, sayı rozetleriyle.',
-			'Tanıtım Kutusu'     => 'Koyu tanıtım kutusu (ör. Bireysel Plus); paketi olan rollerde gizlenir.',
-			'Ana Sayfa: Arama'   => 'Başlık ve 3 adımlı arama: kategori → şehir → Voxel arama sayfası.',
-			'Ana Sayfa: Şehrin Sahipleri' => 'Her kategoride şehrin tahtındaki işletme, rakip farkı ve Yarış Arenası.',
-			'Ana Sayfa: Kategori Sıralaması' => 'Bir kategorinin şehirdeki en yüksek puanlı, en popüler ve yükselen işletmeleri.',
-			'Ana Sayfa: Şehirler' => 'Öne çıkan şehir kartları, işletme sayıları ve tüm iller.',
-			'Ana Sayfa: İşletme Paketleri' => 'İşletme sahiplerine tanıtım ve düzenlenebilir paketler.',
-			'Ana Sayfa: Referanslar' => 'Sitedeki gerçek 4–5 yıldızlı yorumlar ya da elle yazılanlar.',
-			'Ana Sayfa: Blog'    => 'Son blog yazıları.',
-			'Ana Sayfa: Çağrı Bandı' => 'Koyu çağrı bandı ve düğmeler.',
-		);
+	/**
+	 * Widget'lar: kartlar, arama, grup filtresi ve aç/kapat anahtarları.
+	 */
+	private static function render_widgets() {
+		$all      = IBP_Widgets::all();
+		$groups   = IBP_Widgets::groups();
+		$disabled = IBP_Widgets::disabled();
+		$usage    = IBP_Widgets::usage();
+		$counts   = array_count_values( wp_list_pluck( $all, 'group' ) );
+		$in_use   = count( array_intersect( array_keys( $all ), array_keys( $usage ) ) );
+		?>
+		<div class="ibp-wx">
+			<section class="ibp-wx-hero">
+				<div class="ibp-wx-hero__main">
+					<span class="ibp-wx-hero__kicker">ELEMENTOR WIDGET'LARI</span>
+					<h2>Panel, bireysel hesap ve ana sayfa; tek eklentide.</h2>
+					<p>Kullanmadığın widget'ları kapat; Elementor'un widget listesinde görünmez ve yüklenmez. Bir sayfada kullanılan widget'ı kapatmadan önce uyarı alırsın.</p>
+					<ul class="ibp-wx-hero__checks">
+						<li><span class="dashicons dashicons-yes"></span>Voxel verisiyle çalışır</li>
+						<li><span class="dashicons dashicons-yes"></span>Kategoriye göre menü</li>
+						<li><span class="dashicons dashicons-yes"></span>Marka, şube ve bayi</li>
+						<li><span class="dashicons dashicons-yes"></span>Mobil uyumlu</li>
+					</ul>
+					<div class="ibp-wx-hero__actions">
+						<a class="ibp-wx-btn ibp-wx-btn--primary" href="<?php echo esc_url( self::url() ); ?>">Panel sayfalarını kur</a>
+						<a class="ibp-wx-btn ibp-wx-btn--ghost" href="<?php echo esc_url( self::url( 'settings' ) ); ?>">Ayarlar</a>
+					</div>
+				</div>
+				<div class="ibp-wx-hero__stats">
+					<div><b data-ibp-count-on><?php echo esc_html( count( $all ) - count( $disabled ) ); ?></b><span>açık</span></div>
+					<div><b><?php echo esc_html( count( $all ) ); ?></b><span>toplam</span></div>
+					<div><b><?php echo esc_html( $in_use ); ?></b><span>sayfalarda kullanılıyor</span></div>
+				</div>
+			</section>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="ibp-wx-form" data-ibp-widgets>
+				<input type="hidden" name="action" value="ibp_save_widgets">
+				<?php wp_nonce_field( IBP_Widgets::NONCE ); ?>
+
+				<div class="ibp-wx-toolbar">
+					<label class="ibp-wx-search">
+						<span class="dashicons dashicons-search"></span>
+						<span class="screen-reader-text">Widget ara</span>
+						<input type="search" placeholder="Widget ara…" data-ibp-search>
+					</label>
+					<div class="ibp-wx-chips" role="group" aria-label="Grup">
+						<button type="button" class="ibp-wx-chip is-on" data-ibp-group="">Tümü <span><?php echo esc_html( count( $all ) ); ?></span></button>
+						<?php foreach ( $groups as $key => $label ) : ?>
+							<button type="button" class="ibp-wx-chip" data-ibp-group="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?> <span><?php echo esc_html( $counts[ $key ] ?? 0 ); ?></span></button>
+						<?php endforeach; ?>
+					</div>
+					<div class="ibp-wx-bulk">
+						<button type="button" class="ibp-wx-btn ibp-wx-btn--sm" data-ibp-all="1">Görünenleri aç</button>
+						<button type="button" class="ibp-wx-btn ibp-wx-btn--sm" data-ibp-all="0">Görünenleri kapat</button>
+					</div>
+				</div>
+
+				<div class="ibp-wx-grid">
+					<?php foreach ( $all as $name => $widget ) : ?>
+						<?php
+						$on    = ! in_array( $name, $disabled, true );
+						$used  = $usage[ $name ]['count'] ?? 0;
+						$pages = $usage[ $name ]['pages'] ?? array();
+						$id    = 'ibp-wx-' . $name;
+						?>
+						<div class="ibp-wx-card<?php echo $on ? '' : ' is-off'; ?>" data-group="<?php echo esc_attr( $widget['group'] ); ?>" data-search="<?php echo esc_attr( IBP_Business::lower_tr( $widget['title'] . ' ' . $widget['desc'] . ' ' . $groups[ $widget['group'] ] ) ); ?>">
+							<div class="ibp-wx-card__top">
+								<span class="ibp-wx-card__ic ibp-wx-card__ic--<?php echo esc_attr( $widget['group'] ); ?>"><?php echo IBP_Icons::svg( $widget['icon'], 'ibp-wx-i' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
+								<div class="ibp-wx-card__title">
+									<label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $widget['title'] ); ?></label>
+									<span class="ibp-wx-tag ibp-wx-tag--<?php echo esc_attr( $widget['group'] ); ?>"><?php echo esc_html( $groups[ $widget['group'] ] ); ?></span>
+								</div>
+							</div>
+							<p class="ibp-wx-card__desc"><?php echo esc_html( $widget['desc'] ); ?></p>
+							<div class="ibp-wx-card__foot">
+								<span class="ibp-wx-card__usage<?php echo $used ? ' is-used' : ''; ?>"<?php echo $pages ? ' title="' . esc_attr( implode( ', ', array_slice( $pages, 0, 8 ) ) ) . '"' : ''; ?>>
+									<?php echo esc_html( $used ? sprintf( '%d sayfada kullanılıyor', $used ) : 'Hiçbir sayfada kullanılmıyor' ); ?>
+								</span>
+								<span class="ibp-wx-switch">
+									<input type="checkbox" role="switch" id="<?php echo esc_attr( $id ); ?>" name="enabled[]" value="<?php echo esc_attr( $name ); ?>" data-used="<?php echo esc_attr( $used ); ?>" data-title="<?php echo esc_attr( $widget['title'] ); ?>"<?php checked( $on ); ?>>
+									<span aria-hidden="true"></span>
+								</span>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+				<p class="ibp-wx-none" data-ibp-none hidden>Aramaya uyan widget yok.</p>
+
+				<div class="ibp-wx-save" data-ibp-save>
+					<span data-ibp-dirty-text>Değişiklik yok.</span>
+					<button type="submit" class="ibp-wx-btn ibp-wx-btn--primary">Kaydet</button>
+				</div>
+			</form>
+		</div>
+		<?php
 	}
 
 	private static function render_settings() {
@@ -465,8 +567,7 @@ class IBP_Admin {
 		);
 		?>
 		<form method="get">
-			<input type="hidden" name="page" value="<?php echo esc_attr( self::SLUG ); ?>">
-			<input type="hidden" name="tab" value="debug">
+			<input type="hidden" name="page" value="<?php echo esc_attr( self::slug_for( 'debug' ) ); ?>">
 			<label for="ibp-biz"><strong>İşletme:</strong></label>
 			<select id="ibp-biz" name="business">
 				<option value="0">Seç…</option>

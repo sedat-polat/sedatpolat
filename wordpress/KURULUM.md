@@ -13,7 +13,9 @@ Bu eklenti İşletme Paneli tasarımını Elementor widget'ları olarak ekler. W
 
 ## 2. Durum kontrolü
 
-Sol menüde yeni bir **İşletmeBurada** bölümü açılır. **Durum** sekmesinde her satırın yanında yeşil tik olmalı:
+Sol menüde yeni bir **İşletmeBurada** bölümü açılır. Altında şu sayfalar var: **Genel bakış, Widget'lar, Sektörler, Marka ağı, Ayarlar, Tanılama**.
+
+**Genel bakış** sayfasında her satırın yanında yeşil tik olmalı:
 
 | Kontrol | Anlamı |
 |---|---|
@@ -27,7 +29,7 @@ Sarı ünlem varsa ekran görüntüsünü gönder.
 
 ## 3. Panel sayfalarını oluştur (tek tık)
 
-**Durum** sekmesinde **"Panel sayfalarını oluştur"** düğmesine bas. Üç sayfa oluşur:
+**Genel bakış** sayfasında **"Panel sayfalarını oluştur"** düğmesine bas. Üç sayfa oluşur:
 
 - **İşletme Paneli** (Genel bakış)
 - **İstatistikler**
@@ -110,7 +112,7 @@ Bir işletme bir markanın **şubesi**, **bayisi** ya da **franchise'ı** olabil
 
 ## 7. Bireysel panel (Hesabım)
 
-Her giriş yapan kullanıcı için kişisel panel. **Durum → Panel sayfalarını oluştur / sıfırla** düğmesi **Hesabım** sayfasını da kurar. Mevcut panel sayfaların da varsayılan düzene döner.
+Her giriş yapan kullanıcı için kişisel panel. **Genel bakış → Panel sayfalarını oluştur / sıfırla** düğmesi **Hesabım** sayfasını da kurar. Mevcut panel sayfaların da varsayılan düzene döner.
 
 Görünenler:
 - **Kullanıcı kartı:** avatar, ad, yerel rehber seviyesi, sonraki seviyeye kalan puan
@@ -130,7 +132,7 @@ Biletler, iş başvuruları, özgeçmiş, kuponlar, etkinlikler, teklif talepler
 
 ## 8. Ana sayfa
 
-**Durum → Ana sayfa taslağı oluştur** düğmesi prototipteki ana sayfayı **taslak** olarak kurar. Mevcut ana sayfan değişmez. Voxel temanın üst menüsü ve alt bilgisi korunur. Beğenince **Ayarlar → Okuma → Ana sayfa** olarak seç.
+**Genel bakış → Ana sayfa taslağı oluştur** düğmesi prototipteki ana sayfayı **taslak** olarak kurar. Mevcut ana sayfan değişmez. Voxel temanın üst menüsü ve alt bilgisi korunur. Beğenince **Ayarlar → Okuma → Ana sayfa** olarak seç.
 
 Bölümler (Elementor'da **"İşletmeBurada Ana Sayfa"** başlığı altında):
 
@@ -160,7 +162,18 @@ Bölümler (Elementor'da **"İşletmeBurada Ana Sayfa"** başlığı altında):
 - **Sayaç:** Açık/kapalı. İşletme sahipleri ve yöneticiler sayılmaz.
 - **Şehrin Sahipleri:** Puan 10 ya da 5 üzerinden; sıralamaya girmek için gereken en az yorum sayısı.
 
-## 10. Bir şey yanlış görünürse
+## 10. Widget'ları aç/kapat (İşletmeBurada → Widget'lar)
+
+Tüm widget'lar kartlar hâlinde listelenir. Her kartta şunlar var:
+- ne işe yaradığı,
+- hangi gruba ait olduğu (İşletme paneli / Bireysel panel / Ana sayfa),
+- kaç sayfada kullanıldığı.
+
+**Aç/kapat:** Anahtarla açıp kapatabilir, arama ve grup filtresiyle listeyi daraltabilirsin. Kapatılan widget Elementor'un listesinde görünmez ve yüklenmez.
+
+**Uyarı:** Bir sayfada kullanılan widget'ı kapatırsan kaydetmeden önce uyarı alırsın. Kapatılan widget, kullanıldığı sayfalarda görünmez olur.
+
+## 11. Bir şey yanlış görünürse
 
 **İşletmeBurada → Tanılama** sekmesinde işletmeyi seç. Çıkan metni kopyalayıp gönder.
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       İşletmeBurada Panel
  * Description:       İşletme paneli tasarımını Voxel verisiyle çalışan Elementor widget'ları olarak ekler.
- * Version:           0.6.0
+ * Version:           0.7.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            İşletmeBurada
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IBP_VERSION', '0.6.0' );
+define( 'IBP_VERSION', '0.7.0' );
 define( 'IBP_FILE', __FILE__ );
 define( 'IBP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IBP_URL', plugin_dir_url( __FILE__ ) );
@@ -33,6 +33,7 @@ require_once IBP_DIR . 'includes/class-ibp-tracker.php';
 require_once IBP_DIR . 'includes/class-ibp-ranking.php';
 require_once IBP_DIR . 'includes/class-ibp-page-builder.php';
 require_once IBP_DIR . 'includes/class-ibp-debug.php';
+require_once IBP_DIR . 'includes/class-ibp-widgets.php';
 require_once IBP_DIR . 'includes/class-ibp-admin.php';
 
 register_activation_hook( __FILE__, array( 'IBP_Tracker', 'maybe_install' ) );
@@ -108,48 +109,6 @@ function ibp_register_category( $elements_manager ) {
 }
 
 function ibp_register_widgets( $widgets_manager ) {
-	require_once IBP_DIR . 'includes/widgets/class-ibp-widget-base.php';
-
-	$widgets = array(
-		'brand'          => 'IBP_Widget_Brand',
-		'business-card'  => 'IBP_Widget_Business_Card',
-		'nav'            => 'IBP_Widget_Nav',
-		'profile-status' => 'IBP_Widget_Profile_Status',
-		'topbar'         => 'IBP_Widget_Topbar',
-		'greeting'       => 'IBP_Widget_Greeting',
-		'stat-card'      => 'IBP_Widget_Stat_Card',
-		'chart'          => 'IBP_Widget_Chart',
-		'ranking'        => 'IBP_Widget_Ranking',
-		'todos'          => 'IBP_Widget_Todos',
-		'reviews'        => 'IBP_Widget_Reviews',
-		'completeness'   => 'IBP_Widget_Completeness',
-		'funnel'         => 'IBP_Widget_Funnel',
-		'network'        => 'IBP_Widget_Network',
-		'user-card'      => 'IBP_Widget_User_Card',
-		'user-stat'      => 'IBP_Widget_User_Stat',
-		'user-list'      => 'IBP_Widget_User_List',
-		'shortcuts'      => 'IBP_Widget_Shortcuts',
-		'promo'          => 'IBP_Widget_Promo',
-	);
-
-	foreach ( $widgets as $file => $class ) {
-		require_once IBP_DIR . 'includes/widgets/class-ibp-widget-' . $file . '.php';
-		$widgets_manager->register( new $class() );
-	}
-
-	require_once IBP_DIR . 'includes/widgets/class-ibp-home-widget-base.php';
-	$home = array(
-		'hero'         => 'IBP_Home_Hero',
-		'crowns'       => 'IBP_Home_Crowns',
-		'ranking'      => 'IBP_Home_Ranking',
-		'cities'       => 'IBP_Home_Cities',
-		'pricing'      => 'IBP_Home_Pricing',
-		'testimonials' => 'IBP_Home_Testimonials',
-		'blog'         => 'IBP_Home_Blog',
-		'cta'          => 'IBP_Home_Cta',
-	);
-	foreach ( $home as $file => $class ) {
-		require_once IBP_DIR . 'includes/widgets/class-ibp-home-' . $file . '.php';
-		$widgets_manager->register( new $class() );
-	}
+	// Hangi widget'ların açık olduğu İşletmeBurada → Widget'lar ekranından yönetilir.
+	IBP_Widgets::register( $widgets_manager );
 }

@@ -1,0 +1,587 @@
+/* İşletmeBurada Panel — yönetim ekranları. */
+
+.ibp-admin {
+	--x-accent: #D93A40;
+	--x-accent-2: #FF5A5F;
+	--x-soft: #FFF1F1;
+	--x-ink: #1C1E21;
+	--x-ink-2: #3A3F45;
+	--x-muted: #6B7280;
+	--x-border: #E6E8EB;
+	--x-border-2: #DADDE1;
+	--x-paper: #F7F8FA;
+	max-width: 1180px;
+}
+
+/* Başlık çubuğu ----------------------------------------------------------- */
+
+.ibp-admin__bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 18px 0 16px;
+}
+
+.ibp-admin__logo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	background: var(--x-accent-2);
+	color: #FFFFFF;
+}
+
+.ibp-admin__logo .dashicons {
+	width: 22px;
+	height: 22px;
+	font-size: 22px;
+}
+
+.ibp-admin .ibp-admin__bar h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--x-ink);
+}
+
+.ibp-admin__crumb {
+	font-size: 12px;
+	color: var(--x-muted);
+}
+
+.ibp-admin__body {
+	margin-top: 8px;
+}
+
+/* Düğmeler --------------------------------------------------------------- */
+
+.ibp-admin .ibp-wx-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 16px;
+	border: 1px solid var(--x-border-2);
+	border-radius: 8px;
+	background: #FFFFFF;
+	color: var(--x-ink);
+	font-size: 13px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.ibp-admin .ibp-wx-btn:hover {
+	background: var(--x-paper);
+	color: var(--x-ink);
+}
+
+.ibp-admin .ibp-wx-btn:focus-visible {
+	outline: 2px solid var(--x-ink);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+.ibp-admin .ibp-wx-btn--primary {
+	border-color: var(--x-accent);
+	background: var(--x-accent);
+	color: #FFFFFF;
+}
+
+.ibp-admin .ibp-wx-btn--primary:hover {
+	background: #C2323A;
+	color: #FFFFFF;
+}
+
+.ibp-admin .ibp-wx-btn--ghost {
+	border-color: rgba(255, 255, 255, 0.25);
+	background: transparent;
+	color: #FFFFFF;
+}
+
+.ibp-admin .ibp-wx-btn--ghost:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: #FFFFFF;
+}
+
+.ibp-admin .ibp-wx-btn--sm {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 12px;
+}
+
+/* Özet bandı ------------------------------------------------------------- */
+
+.ibp-wx-hero {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 32px;
+	align-items: center;
+	overflow: hidden;
+	margin-bottom: 20px;
+	padding: 28px 32px;
+	border-radius: 14px;
+	background: var(--x-ink);
+	color: #FFFFFF;
+}
+
+.ibp-wx-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(ellipse 55% 80% at 100% 0%, rgba(255, 90, 95, 0.22), transparent 60%), radial-gradient(ellipse 40% 60% at 0% 100%, rgba(245, 179, 1, 0.08), transparent 60%);
+}
+
+.ibp-wx-hero > * {
+	position: relative;
+}
+
+.ibp-wx-hero__kicker {
+	display: inline-block;
+	margin-bottom: 8px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.18em;
+	color: var(--x-accent-2);
+}
+
+.ibp-admin .ibp-wx-hero h2 {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.25;
+	color: #FFFFFF;
+}
+
+.ibp-wx-hero p {
+	max-width: 620px;
+	margin: 0 0 16px;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #B0B8C4;
+}
+
+.ibp-wx-hero__checks {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, max-content));
+	gap: 6px 28px;
+	margin: 0 0 20px;
+	padding: 0;
+	list-style: none;
+}
+
+.ibp-wx-hero__checks li {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	font-size: 13px;
+	color: #D6DBE3;
+}
+
+.ibp-wx-hero__checks .dashicons {
+	color: #34D399;
+}
+
+.ibp-wx-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ibp-wx-hero__stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.ibp-wx-hero__stats > div {
+	display: flex;
+	flex-direction: column;
+	min-width: 96px;
+	padding: 14px 16px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.ibp-wx-hero__stats b {
+	font-size: 26px;
+	font-weight: 800;
+	line-height: 1.1;
+}
+
+.ibp-wx-hero__stats span {
+	font-size: 12px;
+	color: #9AA3AF;
+}
+
+/* Araç çubuğu ------------------------------------------------------------ */
+
+.ibp-wx-toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.ibp-wx-search {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 1 280px;
+	height: 38px;
+	padding: 0 10px;
+	border: 1px solid var(--x-border-2);
+	border-radius: 8px;
+	background: #FFFFFF;
+}
+
+.ibp-wx-search:focus-within {
+	border-color: var(--x-accent-2);
+	box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.18);
+}
+
+.ibp-wx-search .dashicons {
+	color: #9CA3AF;
+}
+
+.ibp-admin .ibp-wx-search input {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	font-size: 13px;
+}
+
+.ibp-admin .ibp-wx-search input:focus {
+	box-shadow: none;
+	outline: 0;
+}
+
+.ibp-wx-chips {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 9px;
+	background: #EEF0F2;
+}
+
+.ibp-admin .ibp-wx-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 32px;
+	padding: 0 12px;
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--x-ink-2);
+	cursor: pointer;
+}
+
+.ibp-wx-chip span {
+	padding: 1px 6px;
+	border-radius: 9px;
+	background: rgba(28, 30, 33, 0.07);
+	font-size: 11px;
+}
+
+.ibp-admin .ibp-wx-chip.is-on {
+	background: #FFFFFF;
+	box-shadow: 0 1px 2px rgba(28, 30, 33, 0.08);
+	color: var(--x-ink);
+}
+
+.ibp-admin .ibp-wx-chip:focus-visible {
+	outline: 2px solid var(--x-ink);
+	outline-offset: 2px;
+}
+
+.ibp-wx-bulk {
+	display: flex;
+	gap: 6px;
+	margin-left: auto;
+}
+
+/* Kartlar ---------------------------------------------------------------- */
+
+.ibp-wx-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.ibp-wx-card {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	border: 1px solid var(--x-border);
+	border-radius: 12px;
+	background: #FFFFFF;
+	transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.ibp-wx-card:hover {
+	border-color: var(--x-border-2);
+	box-shadow: 0 2px 10px rgba(28, 30, 33, 0.06);
+}
+
+.ibp-wx-card[hidden] {
+	display: none;
+}
+
+.ibp-wx-card.is-off {
+	background: #FBFBFC;
+}
+
+.ibp-wx-card.is-off .ibp-wx-card__ic,
+.ibp-wx-card.is-off .ibp-wx-card__title,
+.ibp-wx-card.is-off .ibp-wx-card__desc {
+	opacity: 0.55;
+}
+
+.ibp-wx-card__top {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: 10px;
+}
+
+.ibp-wx-card__ic {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 38px;
+	height: 38px;
+	border-radius: 10px;
+	background: var(--x-soft);
+	color: var(--x-accent);
+}
+
+.ibp-wx-card__ic--personal {
+	background: #EEF2FF;
+	color: #4338CA;
+}
+
+.ibp-wx-card__ic--home {
+	background: #FFF8E6;
+	color: #9A6A00;
+}
+
+.ibp-wx-i {
+	width: 19px;
+	height: 19px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.ibp-wx-card__title {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	min-width: 0;
+}
+
+.ibp-wx-card__title label {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--x-ink);
+	cursor: pointer;
+}
+
+.ibp-wx-tag {
+	padding: 1px 8px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	background: var(--x-soft);
+	color: #B92F35;
+}
+
+.ibp-wx-tag--personal {
+	background: #EEF2FF;
+	color: #4338CA;
+}
+
+.ibp-wx-tag--home {
+	background: #FFF8E6;
+	color: #9A6A00;
+}
+
+.ibp-admin .ibp-wx-card__desc {
+	flex: 1;
+	margin: 0 0 14px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--x-muted);
+}
+
+.ibp-wx-card__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding-top: 12px;
+	border-top: 1px solid #F1F3F5;
+}
+
+.ibp-wx-card__usage {
+	font-size: 12px;
+	color: #9CA3AF;
+}
+
+.ibp-wx-card__usage.is-used {
+	font-weight: 600;
+	color: #15803D;
+	cursor: help;
+}
+
+/* Aç/kapat anahtarı */
+
+.ibp-wx-switch {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+	width: 38px;
+	height: 22px;
+}
+
+.ibp-admin .ibp-wx-switch input {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.ibp-wx-switch span {
+	position: absolute;
+	inset: 0;
+	border-radius: 999px;
+	background: var(--x-border-2);
+	transition: background 0.15s;
+}
+
+.ibp-wx-switch span::before {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #FFFFFF;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	transition: transform 0.15s;
+}
+
+.ibp-wx-switch input:checked + span {
+	background: var(--x-accent);
+}
+
+.ibp-wx-switch input:checked + span::before {
+	transform: translateX(16px);
+}
+
+.ibp-wx-switch input:focus-visible + span {
+	outline: 2px solid var(--x-ink);
+	outline-offset: 2px;
+}
+
+.ibp-wx-none {
+	padding: 24px;
+	border: 1px dashed var(--x-border-2);
+	border-radius: 12px;
+	text-align: center;
+	color: var(--x-muted);
+}
+
+/* Kaydet çubuğu ---------------------------------------------------------- */
+
+.ibp-wx-save {
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 14px;
+	margin-top: 18px;
+	padding: 12px 16px;
+	border: 1px solid var(--x-border);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.96);
+	box-shadow: 0 -4px 16px rgba(28, 30, 33, 0.05);
+	font-size: 13px;
+	color: var(--x-muted);
+}
+
+.ibp-wx-save.is-dirty {
+	border-color: rgba(255, 90, 95, 0.5);
+	color: #B92F35;
+	font-weight: 600;
+}
+
+/* Duyarlı düzen ---------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+	.ibp-wx-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.ibp-wx-hero {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 700px) {
+	.ibp-wx-grid,
+	.ibp-wx-hero__checks {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.ibp-wx-hero {
+		padding: 20px;
+	}
+
+	.ibp-wx-bulk {
+		margin-left: 0;
+	}
+
+	.ibp-wx-search {
+		flex: 1 1 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ibp-wx-switch span,
+	.ibp-wx-switch span::before,
+	.ibp-wx-card {
+		transition: none;
+	}
+}
