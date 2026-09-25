@@ -100,6 +100,19 @@
 		syncToggles();
 	});
 
+	// Sabit üst bar: sayfa kaydırılınca hafif gölge.
+	var bars = document.querySelectorAll('.ibp-topbar');
+	function onScroll() {
+		var stuck = window.scrollY > 4;
+		bars.forEach(function (bar) {
+			bar.classList.toggle('is-stuck', stuck);
+		});
+	}
+	if (bars.length) {
+		window.addEventListener('scroll', onScroll, { passive: true });
+		onScroll();
+	}
+
 	// Daraltılmış hâl masaüstünde hatırlanır; tablet/mobilde uygulanmaz.
 	try {
 		if (localStorage.getItem('ibp:sb') === '1' && isDesktop() && !body.classList.contains('elementor-editor-active')) {

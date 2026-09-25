@@ -46,6 +46,7 @@ Sonra **Elementor ile düzenle** bağlantısından her şeyi değiştirebilirsin
 
 ## 4. Mobil ve tablet
 
+- **Üst bar** sayfa kaydırılınca ekranın üstünde sabit kalır. İstemezsen Üst Bar widget'ında **"Kaydırınca üstte sabit kalsın: Hayır"** seç.
 - **Masaüstü (1025px ve üstü):** Sol menü sabit durur, sayfa kaydırılsa da yerinde kalır. Üst bardaki menü düğmesi onu yalnız ikonlara daraltır; üzerine gelince açılır. Seçim tarayıcıda hatırlanır.
 - **Tablet ve mobil:** Sol menü gizlenir. Üst bardaki **☰** düğmesi onu soldan açılan bir çekmece olarak açar.
 - Sayı kartları masaüstünde 4, tablette 2, mobilde 1 sütun olur. Grafik ile Şehrin Sahipleri tablette alt alta geçer.

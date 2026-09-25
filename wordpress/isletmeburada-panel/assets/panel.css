@@ -1337,6 +1337,37 @@
 	}
 }
 
+/* Sabit üst bar ------------------------------------------------------- */
+
+/*
+ * Sticky, widget'ın kendisine değil Elementor'un widget kutusuna verilmeli; yoksa
+ * kutu üst bar kadar yüksek olduğu için kayacak yer kalmaz.
+ */
+.elementor-widget-ibp-topbar:not(.ibp-sticky-no) {
+	position: sticky;
+	top: 0;
+	z-index: 50;
+}
+
+.admin-bar .elementor-widget-ibp-topbar:not(.ibp-sticky-no) {
+	top: 32px;
+}
+
+.ibp-topbar {
+	transition: box-shadow 0.15s ease;
+}
+
+.ibp-topbar.is-stuck {
+	box-shadow: 0 1px 0 var(--ibp-border), 0 6px 16px rgba(28, 30, 33, 0.06);
+}
+
+@media (max-width: 782px) {
+	/* WordPress yönetim çubuğu mobilde sayfayla birlikte kayar. */
+	.admin-bar .elementor-widget-ibp-topbar:not(.ibp-sticky-no) {
+		top: 0;
+	}
+}
+
 /* Panel düzeni: "ibp-sidebar" sınıflı container ------------------------ */
 
 /*

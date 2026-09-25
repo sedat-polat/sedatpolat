@@ -43,6 +43,20 @@ class IBP_Widget_Topbar extends IBP_Widget_Base {
 				'dynamic' => array( 'active' => true ),
 			)
 		);
+		$this->add_control(
+			'sticky',
+			array(
+				'label'        => 'Kaydırınca üstte sabit kalsın',
+				'type'         => Controls_Manager::SELECT,
+				'default'      => 'yes',
+				'options'      => array(
+					'yes' => 'Evet',
+					'no'  => 'Hayır',
+				),
+				// Widget kutusuna ibp-sticky-yes / ibp-sticky-no sınıfı ekler.
+				'prefix_class' => 'ibp-sticky-',
+			)
+		);
 		$this->end_controls_section();
 
 		$this->start_controls_section( 'actions', array( 'label' => 'Düğmeler' ) );
