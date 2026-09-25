@@ -2,13 +2,37 @@
 (function () {
 	var body = document.body;
 	var overlay;
+	var DESKTOP = 1024;
+
+	function isDesktop() {
+		return window.innerWidth > DESKTOP;
+	}
+
+	function syncToggles() {
+		var collapsed = body.classList.contains('ibp-sb-collapsed');
+		var open = body.classList.contains('ibp-nav-open');
+		document.querySelectorAll('[data-ibp-nav-toggle]').forEach(function (button) {
+			if (isDesktop()) {
+				button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+				button.setAttribute('aria-label', collapsed ? 'Menüyü genişlet' : 'Menüyü daralt');
+			} else {
+				button.setAttribute('aria-expanded', open ? 'true' : 'false');
+				button.setAttribute('aria-label', open ? 'Menüyü kapat' : 'Menüyü aç');
+			}
+		});
+	}
+
+	function setCollapsed(collapsed) {
+		body.classList.toggle('ibp-sb-collapsed', collapsed);
+		try {
+			localStorage.setItem('ibp:sb', collapsed ? '1' : '0');
+		} catch (e) {}
+		syncToggles();
+	}
 
 	function setNav(open) {
 		body.classList.toggle('ibp-nav-open', open);
-		document.querySelectorAll('[data-ibp-nav-toggle]').forEach(function (button) {
-			button.setAttribute('aria-expanded', open ? 'true' : 'false');
-			button.setAttribute('aria-label', open ? 'Menüyü kapat' : 'Menüyü aç');
-		});
+		syncToggles();
 		if (open && !overlay) {
 			overlay = document.createElement('div');
 			overlay.className = 'ibp-overlay';
@@ -33,7 +57,11 @@
 	document.addEventListener('click', function (event) {
 		var toggle = event.target.closest('[data-ibp-nav-toggle]');
 		if (toggle) {
-			setNav(!body.classList.contains('ibp-nav-open'));
+			if (isDesktop()) {
+				setCollapsed(!body.classList.contains('ibp-sb-collapsed'));
+			} else {
+				setNav(!body.classList.contains('ibp-nav-open'));
+			}
 			return;
 		}
 
@@ -66,8 +94,17 @@
 	});
 
 	window.addEventListener('resize', function () {
-		if (window.innerWidth > 1024 && body.classList.contains('ibp-nav-open')) {
+		if (isDesktop() && body.classList.contains('ibp-nav-open')) {
 			setNav(false);
 		}
+		syncToggles();
 	});
+
+	// Daraltılmış hâl masaüstünde hatırlanır; tablet/mobilde uygulanmaz.
+	try {
+		if (localStorage.getItem('ibp:sb') === '1' && isDesktop() && !body.classList.contains('elementor-editor-active')) {
+			body.classList.add('ibp-sb-collapsed');
+		}
+	} catch (e) {}
+	syncToggles();
 })();

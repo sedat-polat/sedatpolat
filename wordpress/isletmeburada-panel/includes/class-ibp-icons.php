@@ -37,6 +37,7 @@ class IBP_Icons {
 			'pin'       => array( 'Konum', '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>' ),
 			'crown'     => array( 'Taç', '<path d="M3 19h18M4 8l4 4 4-7 4 7 4-4-2 11H6z"/>' ),
 			'phone'     => array( 'Telefon', '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>' ),
+			'sidebar'   => array( 'Kenar çubuğu', '<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="M15 10l-2 2 2 2"/>' ),
 			'menu'      => array( 'Menü', '<path d="M4 6h16M4 12h16M4 18h16"/>' ),
 			'close'     => array( 'Kapat', '<path d="M6 6l12 12M18 6L6 18"/>' ),
 			'logout'    => array( 'Çıkış', '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>' ),

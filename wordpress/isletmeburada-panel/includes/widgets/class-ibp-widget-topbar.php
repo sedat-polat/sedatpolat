@@ -122,9 +122,12 @@ class IBP_Widget_Topbar extends IBP_Widget_Base {
 			$initials .= mb_substr( $word, 0, 1 );
 		}
 		?>
+		<?php if ( ! IBP_Business::is_editor_preview() ) : ?>
+			<script>try{if(localStorage.getItem('ibp:sb')==='1'&&innerWidth>1024)document.body.classList.add('ibp-sb-collapsed')}catch(e){}</script>
+		<?php endif; ?>
 		<header class="ibp ibp-topbar">
-			<button type="button" class="ibp-icb ibp-topbar__menu" data-ibp-nav-toggle aria-label="Menüyü aç" aria-expanded="false">
-				<?php echo IBP_Icons::svg( 'menu' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			<button type="button" class="ibp-icb ibp-topbar__menu" data-ibp-nav-toggle aria-label="Menüyü daralt" aria-expanded="true">
+				<?php echo IBP_Icons::svg( 'sidebar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			</button>
 			<div class="ibp-topbar__titles">
 				<h1 class="ibp-topbar__title"><?php echo esc_html( $settings['title'] ); ?></h1>

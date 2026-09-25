@@ -666,11 +666,6 @@
 	text-overflow: ellipsis;
 }
 
-/* .ibp .ibp-icb'den güçlü olmalı; yoksa düğme masaüstünde de görünür. */
-.ibp .ibp-icb.ibp-topbar__menu {
-	display: none;
-}
-
 .ibp .ibp-icb {
 	width: 40px;
 	height: 40px;
@@ -1072,8 +1067,38 @@
 
 /* Panel düzeni: "ibp-sidebar" sınıflı container ------------------------ */
 
+/*
+ * Elementor'un "Büyü" (grow) ayarı container'a flex-shrink: 0 verir; sol menünün
+ * yanındaki alan %100 genişlikte kalıp ekranı sağdan taşırır. Menünün yanındaki
+ * tüm container'ların küçülebilmesini sağlıyoruz, menünün kendisi sabit kalır.
+ */
+.ibp-sidebar {
+	--flex-shrink: 0 !important;
+	flex-shrink: 0 !important;
+}
+
+.ibp-sidebar ~ .e-con,
+.ibp-sidebar ~ .e-con .e-con {
+	--flex-shrink: 1 !important;
+	flex-shrink: 1 !important;
+	min-width: 0 !important;
+}
+
+/* Izgaradaki kartlar aynı yükseklikte olsun. */
+.elementor-element[data-widget_type^="ibp-"] > .elementor-widget-container,
+.elementor-element[data-widget_type^="ibp-"] > .elementor-widget-container > .ibp-card,
+.elementor-element[data-widget_type^="ibp-"] > .ibp-card,
+.elementor-element[data-widget_type^="ibp-stat"] .ibp-stat {
+	height: 100%;
+}
+
+.e-con > .elementor-element[data-widget_type^="ibp-"]:only-child {
+	flex-grow: 1;
+}
+
 @media (min-width: 1025px) {
 	.ibp-sidebar {
+		transition: width 0.2s ease, padding 0.2s ease;
 		position: sticky;
 		top: 0;
 		height: 100vh;
@@ -1092,13 +1117,101 @@
 	}
 }
 
+/* Masaüstü: daraltılmış sol menü (yalnız ikonlar, üzerine gelince açılır) - */
+
+@media (min-width: 1025px) {
+	.ibp-sb-collapsed .ibp-sidebar {
+		width: 72px !important;
+		--width: 72px;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+		overflow-x: hidden;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:hover {
+		width: 256px !important;
+		--width: 256px;
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+		transition-delay: 0.12s;
+		box-shadow: 0 12px 32px rgba(28, 30, 33, 0.12);
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-brand__text,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-biz__text,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-biz__switch,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__label,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__soon,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-pstatus__label,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-pstatus__pct,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-bar--thin {
+		display: none;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-brand {
+		justify-content: center;
+		padding: 0;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-biz {
+		padding: 6px;
+		align-items: center;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-biz__row,
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-pstatus__row {
+		justify-content: center;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__item {
+		position: relative;
+		justify-content: center;
+		padding: 0;
+		gap: 0;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__item .ibp-i {
+		width: 18px;
+		height: 18px;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__badge {
+		position: absolute;
+		top: 5px;
+		right: 9px;
+		min-width: 8px;
+		width: 8px;
+		height: 8px;
+		padding: 0;
+		font-size: 0;
+		background: var(--ibp-accent, #D93A40);
+		border: 2px solid #FBFBFC;
+		box-sizing: content-box;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-nav__group {
+		height: 1px;
+		margin: 10px 8px;
+		padding: 0;
+		font-size: 0;
+		background: #EEF0F2;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-pstatus {
+		padding: 10px;
+		align-items: center;
+	}
+
+	.ibp-sb-collapsed .ibp-sidebar:not(:hover) .ibp-pstatus__link {
+		font-size: 0;
+		gap: 0;
+		align-self: center;
+	}
+}
+
 /* Tablet ve mobil: sol menü çekmeceye dönüşür ---------------------------- */
 
 @media (max-width: 1024px) {
-	.ibp .ibp-icb.ibp-topbar__menu {
-		display: inline-flex;
-	}
-
 	.ibp-topbar {
 		padding: 12px 16px;
 		min-height: 64px;
