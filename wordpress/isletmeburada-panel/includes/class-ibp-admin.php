@@ -169,9 +169,9 @@ class IBP_Admin {
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-			<p class="description">Menüdeki Genel bakış, İstatistikler ve Bağlı işletmeler bağlantıları bu sayfalara gider.</p>
+			<p class="description">İşletme paneli (Genel bakış, İstatistikler, Bağlı işletmeler) ve bireysel panel (Hesabım) sayfaları.</p>
 		<?php else : ?>
-			<p>Genel bakış, İstatistikler ve Bağlı İşletmeler sayfalarını, tüm widget'lar yerleşmiş ve mobil ayarları yapılmış hâlde oluşturur.</p>
+			<p>İşletme paneli (Genel bakış, İstatistikler, Bağlı İşletmeler) ve bireysel panel (Hesabım) sayfalarını, tüm widget'lar yerleşmiş ve mobil ayarları yapılmış hâlde oluşturur.</p>
 		<?php endif; ?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px"<?php echo $pages ? ' onsubmit="return confirm(\'Bu sayfalarda Elementor ile yaptığın değişiklikler silinip varsayılan düzen yeniden kurulacak. Devam edilsin mi?\')"' : ''; ?>>
 			<input type="hidden" name="action" value="ibp_create_pages">
@@ -215,6 +215,11 @@ class IBP_Admin {
 			'Profil Doluluğu'    => '13 alandan kaçının dolu olduğu ve eksikler.',
 			'Etkileşim Dağılımı' => 'Görüntüleyenlerin ne kadarının aradığı, yol tarifi aldığı ya da siteye gittiği.',
 			'Bağlı İşletmeler'   => 'Marka için bağlanma istekleri ve şube/bayi/franchise listesi; alt işletme için "markaya bağlan".',
+			'Kullanıcı Kartı'    => 'Bireysel panel: avatar, ad, yerel rehber seviyesi ve ilerleme.',
+			'Kişisel İstatistik' => 'Bireysel panel: yorum, favori, takip, rezervasyon sayısı ya da rehber puanı.',
+			'Kişisel Liste'      => 'Bireysel panel: Yorumlarım, Favorilerim, Takip ettiklerim ya da Rezervasyon ve siparişlerim.',
+			'Hızlı Git'          => 'İkonlu kısayol kutuları, sayı rozetleriyle.',
+			'Tanıtım Kutusu'     => 'Koyu tanıtım kutusu (ör. Bireysel Plus); paketi olan rollerde gizlenir.',
 		);
 	}
 
@@ -263,6 +268,14 @@ class IBP_Admin {
 				<tr>
 					<th scope="row"><label for="ibp-min">Sıralamaya girmek için en az yorum</label></th>
 					<td><input id="ibp-min" type="number" min="1" max="50" class="small-text" name="<?php echo esc_attr( $n ); ?>[ranking_min_reviews]" value="<?php echo esc_attr( $s['ranking_min_reviews'] ); ?>"></td>
+				</tr>
+				<tr>
+					<th scope="row">Yerel rehber puanı (bireysel panel)</th>
+					<td>
+						<label>Her yorum <input type="number" min="0" max="1000" class="small-text" name="<?php echo esc_attr( $n ); ?>[points_review]" value="<?php echo esc_attr( $s['points_review'] ); ?>"> puan</label><br>
+						<label>Favorilere eklenen her işletme <input type="number" min="0" max="1000" class="small-text" name="<?php echo esc_attr( $n ); ?>[points_favorite]" value="<?php echo esc_attr( $s['points_favorite'] ); ?>"> puan</label><br>
+						<label>Her <input type="number" min="10" max="100000" class="small-text" name="<?php echo esc_attr( $n ); ?>[level_size]" value="<?php echo esc_attr( $s['level_size'] ); ?>"> puanda bir seviye atlanır</label>
+					</td>
 				</tr>
 			</table>
 			<?php submit_button( 'Kaydet' ); ?>
@@ -408,6 +421,10 @@ class IBP_Admin {
 		</form>
 		<?php
 		$business = $selected ? IBP_Business::from_id( $selected ) : null;
+		$me       = IBP_User::current();
+		if ( $me ) {
+			echo '<h3>Bireysel panel verisi (senin hesabın)</h3><pre style="padding:16px;background:#1C1E21;color:#E6E8EB;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:8px;max-height:40vh;overflow:auto">' . esc_html( IBP_Debug::json( $me->report() ) ) . '</pre>';
+		}
 		if ( ! $business ) {
 			echo '<p class="description">Bir işletme seç; Voxel verisinin nasıl okunduğu, sayaç, sıralama ve bekleyen işler burada görünür. Bir şey yanlış görünürse bu metni kopyalayıp gönder.</p>';
 			return;

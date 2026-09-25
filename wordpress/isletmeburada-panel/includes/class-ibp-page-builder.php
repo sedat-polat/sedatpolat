@@ -24,24 +24,66 @@ class IBP_Page_Builder {
 		$overview = $pages['overview'] ?? self::insert_page( 'İşletme Paneli', 'isletme-paneli', 0 );
 		$stats    = $pages['stats'] ?? self::insert_page( 'İstatistikler', 'istatistikler', $overview );
 		$network  = $pages['network'] ?? self::insert_page( 'Bağlı İşletmeler', 'bagli-isletmeler', $overview );
+		$personal = $pages['personal'] ?? self::insert_page( 'Hesabım', 'hesabim', 0 );
 
 		$urls = array(
 			'overview' => get_permalink( $overview ),
 			'stats'    => get_permalink( $stats ),
 			'network'  => get_permalink( $network ),
+			'personal' => get_permalink( $personal ),
 		);
+		// Menülerdeki {personal_panel}/{business_panel} bağlantıları bu kayda bakar.
+		update_option( self::OPTION, array( 'overview' => $overview, 'stats' => $stats, 'network' => $network, 'personal' => $personal ) );
 
 		self::save_elementor( $overview, self::shell( $urls, 'Genel bakış', 'İşletmenin bu dönemki durumu ve bekleyen işler.', self::overview_content( $urls ) ) );
 		self::save_elementor( $stats, self::shell( $urls, 'İstatistikler', 'Profilini kaç kişinin görüp iletişime geçtiği.', self::stats_content() ) );
 		self::save_elementor( $network, self::shell( $urls, 'Bağlı işletmeler', 'Şubeler, bayiler ve franchise\'lar.', array( self::widget( 'ibp-network' ) ) ) );
+		self::save_elementor(
+			$personal,
+			self::shell(
+				$urls,
+				'Ana sayfa',
+				'Rezervasyonların, yorumların ve favorilerin tek bakışta.',
+				self::personal_content( $urls ),
+				array(
+					self::widget( 'ibp-brand' ),
+					self::widget( 'ibp-user-card' ),
+					self::widget( 'ibp-nav', array( 'items' => IBP_Widget_Nav::personal_items( $urls ) ), array( '_flex_size' => 'grow' ) ),
+					self::widget( 'ibp-promo' ),
+				),
+				array( 'button_text' => '', 'bell_url' => '', 'bell_badge' => 'none' )
+			)
+		);
 
 		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->files_manager ) ) {
 			\Elementor\Plugin::$instance->files_manager->clear_cache();
 		}
 
-		$pages = array( 'overview' => $overview, 'stats' => $stats, 'network' => $network );
-		update_option( self::OPTION, $pages );
-		return $pages;
+		return self::existing();
+	}
+
+	/**
+	 * {business_panel} / {personal_panel} kısayollarını çözer. Kullanıcının işletmesi
+	 * yoksa {business_panel} için null döner (öğe gizlenir).
+	 */
+	public static function resolve_panel_url( $url ) {
+		if ( false === strpos( $url, '_panel}' ) ) {
+			return $url;
+		}
+		$pages = self::existing();
+		if ( false !== strpos( $url, '{business_panel}' ) ) {
+			if ( empty( $pages['overview'] ) || ! IBP_Network::accessible_ids() ) {
+				return null;
+			}
+			$url = str_replace( '{business_panel}', (string) get_permalink( $pages['overview'] ), $url );
+		}
+		if ( false !== strpos( $url, '{personal_panel}' ) ) {
+			if ( empty( $pages['personal'] ) ) {
+				return null;
+			}
+			$url = str_replace( '{personal_panel}', (string) get_permalink( $pages['personal'] ), $url );
+		}
+		return $url;
 	}
 
 	public static function existing() {
@@ -80,7 +122,11 @@ class IBP_Page_Builder {
 	 * Düzen
 	 * ------------------------------------------------------------------ */
 
-	private static function shell( array $urls, $title, $subtitle, array $content ) {
+	/**
+	 * @param array|null $sidebar_widgets Sol menüdeki widget'lar; boşsa işletme paneli menüsü.
+	 * @param array      $topbar          Üst bar için ek ayarlar.
+	 */
+	private static function shell( array $urls, $title, $subtitle, array $content, $sidebar_widgets = null, array $topbar = array() ) {
 		$sidebar = self::container(
 			array(
 				'css_classes'           => 'ibp-sidebar',
@@ -95,7 +141,7 @@ class IBP_Page_Builder {
 				'border_color'          => '#EEF0F2',
 				'_flex_size'            => 'none',
 			),
-			array(
+			$sidebar_widgets ?: array(
 				self::widget( 'ibp-brand' ),
 				self::widget( 'ibp-business-card' ),
 				self::widget( 'ibp-nav', array( 'items' => IBP_Widget_Nav::default_items( $urls ) ), array( '_flex_size' => 'grow' ) ),
@@ -112,7 +158,7 @@ class IBP_Page_Builder {
 				'min_width'      => array( 'unit' => 'px', 'size' => 0 ),
 			),
 			array(
-				self::widget( 'ibp-topbar', array( 'title' => $title, 'subtitle' => $subtitle ) ),
+				self::widget( 'ibp-topbar', array( 'title' => $title, 'subtitle' => $subtitle ) + $topbar ),
 				self::container(
 					array(
 						'flex_direction' => 'column',
@@ -174,6 +220,41 @@ class IBP_Page_Builder {
 					self::widget( 'ibp-todos' ),
 					self::widget( 'ibp-reviews' ),
 					self::widget( 'ibp-completeness' ),
+				)
+			),
+		);
+	}
+
+	private static function personal_content( array $urls ) {
+		$base = $urls['personal'];
+		return array(
+			self::widget( 'ibp-greeting', array( 'show_hours' => '', 'show_period' => '' ) ),
+			// Prototipteki gibi mobilde de iki sütun.
+			self::grid(
+				4,
+				2,
+				2,
+				array(
+					self::widget( 'ibp-user-stat', array( 'source' => 'reviews', 'label' => 'Yorumlarım', 'url' => $base . '#ibp-reviews' ) ),
+					self::widget( 'ibp-user-stat', array( 'source' => 'favorites', 'label' => 'Favorilerim', 'url' => $base . '#ibp-favorites' ) ),
+					self::widget( 'ibp-user-stat', array( 'source' => 'pending', 'label' => 'Bekleyen rezervasyon', 'url' => $base . '#ibp-orders' ) ),
+					self::widget( 'ibp-user-stat', array( 'source' => 'points', 'label' => 'Yerel rehber puanın' ) ),
+				)
+			),
+			self::row(
+				array(
+					array( 62, self::widget( 'ibp-user-list', array( 'kind' => 'orders', 'count' => 5 ) ) ),
+					array( 38, self::widget( 'ibp-shortcuts' ) ),
+				)
+			),
+			self::grid(
+				3,
+				1,
+				1,
+				array(
+					self::widget( 'ibp-user-list', array( 'kind' => 'reviews' ) ),
+					self::widget( 'ibp-user-list', array( 'kind' => 'favorites' ) ),
+					self::widget( 'ibp-user-list', array( 'kind' => 'following' ) ),
 				)
 			),
 		);

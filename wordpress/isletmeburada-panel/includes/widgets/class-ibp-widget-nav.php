@@ -57,7 +57,48 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 			$head( 'Marka' ),
 			$item( 'Bağlı işletmeler', 'network', $urls['network'] ?? '#', '', 'requests' ),
 			$head( 'Hesap' ),
+			$item( 'Bireysel panelim', 'person', '{personal_panel}' ),
 			$item( 'Paket ve fatura', 'card', '#', 'yes' ),
+			$item( 'Ayarlar', 'sliders', '#', 'yes' ),
+		);
+	}
+
+	/**
+	 * Bireysel panelin menüsü (prototipteki "Bireysel panel").
+	 *
+	 * @param array $urls personal => Hesabım sayfası adresi.
+	 */
+	public static function personal_items( array $urls = array() ) {
+		$base = $urls['personal'] ?? '';
+		$item = function ( $label, $icon, $url = '#', $soon = '' ) {
+			return array( 'kind' => 'link', 'label' => $label, 'icon' => $icon, 'url' => $url, 'soon' => $soon, 'badge' => 'none', 'badge_text' => '' );
+		};
+		$head = function ( $label ) {
+			return array( 'kind' => 'heading', 'label' => $label, 'icon' => 'grid', 'url' => '', 'soon' => '', 'badge' => 'none', 'badge_text' => '' );
+		};
+		return array(
+			$item( 'Ana sayfa', 'home', $base ?: '#' ),
+			$head( 'Planlarım' ),
+			$item( 'Rezervasyon ve randevular', 'calcheck', $base . '#ibp-orders' ),
+			$item( 'Biletlerim', 'ticket', '#', 'yes' ),
+			$item( 'Etkinlik takvimim', 'calendar', '#', 'yes' ),
+			$item( 'Üyelik ve paketler', 'card', '#', 'yes' ),
+			$head( 'Kariyer' ),
+			$item( 'İş başvurularım', 'briefcase', '#', 'yes' ),
+			$item( 'Özgeçmişim', 'doc', '#', 'yes' ),
+			$item( 'Takip ve iş alarmları', 'bell', $base . '#ibp-following' ),
+			$head( 'Fırsatlar' ),
+			$item( 'Kuponlarım', 'tag', '#', 'yes' ),
+			$item( 'Favorilerim', 'heart', $base . '#ibp-favorites' ),
+			$head( 'İlanlarım' ),
+			$item( 'Etkinliklerim', 'gift', '#', 'yes' ),
+			$item( 'Teklif taleplerim', 'quote', '#', 'yes' ),
+			$head( 'Katkılarım' ),
+			$item( 'Yorumlarım', 'star', $base . '#ibp-reviews' ),
+			$item( 'Şikâyetlerim', 'alert', '#', 'yes' ),
+			$head( 'Hesap' ),
+			$item( 'İşletme panelim', 'store', '{business_panel}' ),
+			$item( 'Aboneliğim', 'crown', '#', 'yes' ),
 			$item( 'Ayarlar', 'sliders', '#', 'yes' ),
 		);
 	}
@@ -102,7 +143,7 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 			'url',
 			array(
 				'label'       => 'Adres',
-				'description' => 'Kısayollar: {edit} işletmeyi düzenle, {view} işletme sayfası, {id} işletme ID\'si.',
+				'description' => 'Kısayollar: {edit} işletmeyi düzenle, {view} işletme sayfası, {id} işletme ID\'si, {business_panel} işletme paneli (işletmesi olmayana gizlenir), {personal_panel} bireysel panel.',
 				'type'        => Controls_Manager::TEXT,
 				'default'     => '#',
 				'condition'   => array( 'kind' => 'link' ),
@@ -187,7 +228,11 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 				<?php endif; ?>
 				<?php
 				$soon  = 'yes' === $item['soon'];
-				$url   = $business ? $business->resolve_url( $item['url'] ) : $item['url'];
+				$url   = IBP_Page_Builder::resolve_panel_url( (string) $item['url'] );
+				if ( null === $url ) {
+					continue; // {business_panel}: kullanıcının işletmesi yok.
+				}
+				$url   = $business ? $business->resolve_url( $url ) : $url;
 				$on    = ! $soon && '#' !== $url && '' !== $url && self::path( $url ) === $current;
 				$badge = $this->badge( $item, $business, $settings, $badges );
 				$class = 'ibp-nav__item' . ( $on ? ' is-on' : '' ) . ( $soon ? ' is-soon' : '' );

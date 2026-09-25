@@ -20,6 +20,9 @@ class IBP_Settings {
 			'ranking_scale'       => '10',
 			'ranking_min_reviews' => '1',
 			'edit_url'            => '',
+			'points_review'       => '50',
+			'points_favorite'     => '5',
+			'level_size'          => '300',
 			'sector_map'          => array(),
 			'module_urls'         => array(),
 		);
@@ -68,6 +71,9 @@ class IBP_Settings {
 		$clean['ranking_scale']       = in_array( $input['ranking_scale'] ?? '', array( '5', '10' ), true ) ? $input['ranking_scale'] : '10';
 		$clean['ranking_min_reviews'] = (string) max( 1, min( 50, absint( $input['ranking_min_reviews'] ?? 1 ) ) );
 		$clean['edit_url']            = trim( sanitize_text_field( $input['edit_url'] ?? '' ) );
+		$clean['points_review']       = (string) min( 1000, absint( $input['points_review'] ?? 50 ) );
+		$clean['points_favorite']     = (string) min( 1000, absint( $input['points_favorite'] ?? 5 ) );
+		$clean['level_size']          = (string) max( 10, min( 100000, absint( $input['level_size'] ?? 300 ) ) );
 
 		return $clean;
 	}

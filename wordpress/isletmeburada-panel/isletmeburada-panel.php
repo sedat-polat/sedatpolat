@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       İşletmeBurada Panel
  * Description:       İşletme paneli tasarımını Voxel verisiyle çalışan Elementor widget'ları olarak ekler.
- * Version:           0.4.1
+ * Version:           0.5.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            İşletmeBurada
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IBP_VERSION', '0.4.1' );
+define( 'IBP_VERSION', '0.5.0' );
 define( 'IBP_FILE', __FILE__ );
 define( 'IBP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IBP_URL', plugin_dir_url( __FILE__ ) );
@@ -24,6 +24,7 @@ require_once IBP_DIR . 'includes/class-ibp-work-hours.php';
 require_once IBP_DIR . 'includes/class-ibp-business.php';
 require_once IBP_DIR . 'includes/class-ibp-sectors.php';
 require_once IBP_DIR . 'includes/class-ibp-network.php';
+require_once IBP_DIR . 'includes/class-ibp-user.php';
 require_once IBP_DIR . 'includes/class-ibp-reviews.php';
 require_once IBP_DIR . 'includes/class-ibp-tracker.php';
 require_once IBP_DIR . 'includes/class-ibp-ranking.php';
@@ -112,6 +113,11 @@ function ibp_register_widgets( $widgets_manager ) {
 		'completeness'   => 'IBP_Widget_Completeness',
 		'funnel'         => 'IBP_Widget_Funnel',
 		'network'        => 'IBP_Widget_Network',
+		'user-card'      => 'IBP_Widget_User_Card',
+		'user-stat'      => 'IBP_Widget_User_Stat',
+		'user-list'      => 'IBP_Widget_User_List',
+		'shortcuts'      => 'IBP_Widget_Shortcuts',
+		'promo'          => 'IBP_Widget_Promo',
 	);
 
 	foreach ( $widgets as $file => $class ) {

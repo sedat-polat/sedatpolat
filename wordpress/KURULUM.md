@@ -108,14 +108,34 @@ Bir işletme bir markanın **şubesi**, **bayisi** ya da **franchise'ı** olabil
 
 **Site yöneticisi** tüm bağlantıları **İşletmeBurada → Marka ağı** sekmesinden görür, onaylayabilir ya da kaldırabilir.
 
-## 7. Ayarlar (İşletmeBurada → Ayarlar)
+## 7. Bireysel panel (Hesabım)
+
+Her giriş yapan kullanıcı için kişisel panel. **Durum → Panel sayfalarını oluştur / sıfırla** düğmesi **Hesabım** sayfasını da kurar. Mevcut panel sayfaların da varsayılan düzene döner.
+
+Görünenler:
+- **Kullanıcı kartı:** avatar, ad, yerel rehber seviyesi, sonraki seviyeye kalan puan
+- **Sayı kartları:** Yorumlarım, Favorilerim, Bekleyen rezervasyon, Yerel rehber puanı
+- **Rezervasyon ve siparişlerim:** Voxel Ecommerce siparişleri ve durumları
+- **Hızlı git:** kısayollar, sayı rozetleriyle
+- **Yorumlarım, Favorilerim, Takip ettiklerim:** Voxel yorumları, koleksiyonları ve takip listesi
+- **Tanıtım kutusu:** Ör. "Bireysel Plus". Düğme adresine Voxel üyelik paketleri sayfasını yaz. Paketi olan kullanıcıların rolünü "Bu rollerde gizle" alanına yazarsan onlar görmez.
+
+**Yerel rehber puanı:** Her yorum +50, favorilere eklenen her işletme +5, her 300 puanda bir seviye. Değerleri **Ayarlar**'dan değiştirebilirsin.
+
+**İki panel arası geçiş:** İşletme panelinin menüsünde **"Bireysel panelim"**, bireysel panelde **"İşletme panelim"** bağlantısı var. İkincisi yalnız işletmesi olan kullanıcıda görünür. Üst bardaki kullanıcı menüsünde de iki bağlantı bulunur.
+
+Biletler, iş başvuruları, özgeçmiş, kuponlar, etkinlikler, teklif talepleri, şikâyetler ve abonelik için sitede henüz veri yok. Bunlar menüde **"Yakında"** görünür.
+
+**Sipariş satırları:** Tıklanınca sipariş ayrıntısına gitmesi için Kişisel Liste widget'ındaki **"Sipariş ayrıntı adresi"** alanına Voxel'in sipariş sayfasını yaz, ör. `/siparislerim/?order_id={id}`.
+
+## 8. Ayarlar (İşletmeBurada → Ayarlar)
 
 - **Düzenleme sayfası adresi:** Boş bırakırsan Voxel'in kendi düzenleme bağlantısı kullanılır.
 - **Varsayılan dönem:** 7, 30 ya da 90 gün.
 - **Sayaç:** Açık/kapalı. İşletme sahipleri ve yöneticiler sayılmaz.
 - **Şehrin Sahipleri:** Puan 10 ya da 5 üzerinden; sıralamaya girmek için gereken en az yorum sayısı.
 
-## 8. Bir şey yanlış görünürse
+## 9. Bir şey yanlış görünürse
 
 **İşletmeBurada → Tanılama** sekmesinde işletmeyi seç. Çıkan metni kopyalayıp gönder.
 
@@ -137,6 +157,11 @@ Bir işletme bir markanın **şubesi**, **bayisi** ya da **franchise'ı** olabil
 | Profil Doluluğu | 13 alandan kaçının dolu olduğu, eksikler |
 | Etkileşim Dağılımı | Görüntüleme ve iletişim tıklamaları |
 | Bağlı İşletmeler | Marka için istekler ve bağlı işletme listesi; alt işletme için bağlantı durumu ya da "markaya bağlan" |
+| Kullanıcı Kartı | Bireysel: avatar, ad, yerel rehber seviyesi |
+| Kişisel İstatistik | Bireysel: yorum, favori, takip, rezervasyon sayısı ya da rehber puanı |
+| Kişisel Liste | Bireysel: Yorumlarım, Favorilerim, Takip ettiklerim ya da Rezervasyon ve siparişlerim |
+| Hızlı Git | İkonlu kısayol kutuları |
+| Tanıtım Kutusu | Koyu tanıtım kutusu (ör. Bireysel Plus) |
 
 ### Menü bağlantılarındaki kısayollar
 

@@ -179,6 +179,12 @@ class IBP_Widget_Topbar extends IBP_Widget_Base {
 						<?php if ( $business ) : ?>
 							<a class="ibp-dd__item" href="<?php echo esc_url( $business->permalink() ); ?>"><?php echo IBP_Icons::svg( 'eye' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>İşletme sayfam</a>
 						<?php endif; ?>
+						<?php foreach ( array( '{business_panel}' => array( 'store', 'İşletme panelim' ), '{personal_panel}' => array( 'person', 'Bireysel panelim' ) ) as $token => $link ) : ?>
+							<?php $panel = IBP_Page_Builder::resolve_panel_url( $token ); ?>
+							<?php if ( $panel && untrailingslashit( (string) wp_parse_url( $panel, PHP_URL_PATH ) ) !== untrailingslashit( (string) wp_parse_url( add_query_arg( array() ), PHP_URL_PATH ) ) ) : ?>
+								<a class="ibp-dd__item" href="<?php echo esc_url( $panel ); ?>"><?php echo IBP_Icons::svg( $link[0] ); // phpcs:ignore WordPress.Security.EscapeOutput ?><?php echo esc_html( $link[1] ); ?></a>
+							<?php endif; ?>
+						<?php endforeach; ?>
 						<?php if ( '' !== $settings['profile_url'] ) : ?>
 							<a class="ibp-dd__item" href="<?php echo esc_url( $settings['profile_url'] ); ?>"><?php echo IBP_Icons::svg( 'person' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>Hesabım</a>
 						<?php endif; ?>

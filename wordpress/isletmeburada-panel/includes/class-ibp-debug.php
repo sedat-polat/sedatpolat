@@ -20,7 +20,12 @@ class IBP_Debug {
 		}
 
 		echo '<pre id="ibp-debug" style="margin:24px;padding:16px;background:#1C1E21;color:#E6E8EB;font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;border-radius:12px;position:relative;z-index:99999">';
-		echo esc_html( self::json( self::report( IBP_Business::current() ) ) );
+		$report = self::report( IBP_Business::current() );
+		$me     = IBP_User::current();
+		if ( $me ) {
+			$report['bireysel'] = $me->report();
+		}
+		echo esc_html( self::json( $report ) );
 		echo '</pre>';
 	}
 
