@@ -82,6 +82,52 @@ class IBP_Reviews {
 	}
 
 	/**
+	 * Ana sayfa referansları: en yeni 4–5 yıldızlı, en az 60 karakterlik yorumlar.
+	 *
+	 * @return array[] name, business, text, stars
+	 */
+	public static function best_recent( $limit = 3 ) {
+		global $wpdb;
+		$columns = self::columns();
+		if ( ! in_array( 'content', $columns, true ) || ! in_array( 'post_id', $columns, true ) ) {
+			return array();
+		}
+		$where = array( 'CHAR_LENGTH(content) >= 60' );
+		if ( in_array( 'feed', $columns, true ) ) {
+			$where[] = $wpdb->prepare( 'feed = %s', 'post_reviews' );
+		}
+		if ( in_array( 'review_score', $columns, true ) ) {
+			$where[] = 'review_score >= 1'; // Voxel -2…+2: 1 ve üstü = 4–5 yıldız.
+		}
+		$select = array_intersect( array( 'id', 'post_id', 'user_id', 'content', 'details', 'review_score', 'created_at' ), $columns );
+		$order  = in_array( 'created_at', $columns, true ) ? 'created_at' : 'id';
+		$rows   = $wpdb->get_results( // phpcs:ignore WordPress.DB
+			sprintf( 'SELECT %s FROM `%s` WHERE %s ORDER BY %s DESC LIMIT %d', implode( ', ', $select ), self::table(), implode( ' AND ', $where ), $order, max( 1, (int) $limit ) * 3 ),
+			ARRAY_A
+		);
+
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			$post = get_post( (int) $row['post_id'] );
+			if ( ! $post || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			$stars = self::stars( $row );
+			$user  = ! empty( $row['user_id'] ) ? get_userdata( (int) $row['user_id'] ) : null;
+			$out[] = array(
+				'name'     => $user ? $user->display_name : 'Ziyaretçi',
+				'business' => get_the_title( $post ),
+				'text'     => wp_trim_words( wp_strip_all_tags( (string) $row['content'] ), 45, '…' ),
+				'stars'    => $stars ? $stars : 5,
+			);
+			if ( count( $out ) >= $limit ) {
+				break;
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * İşletme sahibinin henüz yanıtlamadığı yorum sayısı. Yanıt tablosu yoksa null.
 	 */
 	public static function unanswered( IBP_Business $business ) {

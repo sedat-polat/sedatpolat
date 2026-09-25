@@ -128,14 +128,39 @@ Biletler, iş başvuruları, özgeçmiş, kuponlar, etkinlikler, teklif talepler
 
 **Sipariş satırları:** Tıklanınca sipariş ayrıntısına gitmesi için Kişisel Liste widget'ındaki **"Sipariş ayrıntı adresi"** alanına Voxel'in sipariş sayfasını yaz, ör. `/siparislerim/?order_id={id}`.
 
-## 8. Ayarlar (İşletmeBurada → Ayarlar)
+## 8. Ana sayfa
+
+**Durum → Ana sayfa taslağı oluştur** düğmesi prototipteki ana sayfayı **taslak** olarak kurar. Mevcut ana sayfan değişmez. Voxel temanın üst menüsü ve alt bilgisi korunur. Beğenince **Ayarlar → Okuma → Ana sayfa** olarak seç.
+
+Bölümler (Elementor'da **"İşletmeBurada Ana Sayfa"** başlığı altında):
+
+| Widget | Veri |
+|---|---|
+| Arama | Kategoriler Voxel'den; kategori → şehir → arama sayfası |
+| Şehrin Sahipleri | Her kategoride şehrin 1 numarası, rakibi ve aradaki fark, Yarış Arenası |
+| Kategori Sıralaması | Bir kategorinin şehirdeki en yüksek puanlı, en popüler ve yükselen işletmeleri |
+| Şehirler | Şehir kartları, işletme sayıları, tüm iller |
+| İşletme Paketleri | Düzenlenebilir tanıtım ve paketler |
+| Referanslar | Sitedeki gerçek 4–5 yıldızlı yorumlar; yetmezse elle yazılanlar |
+| Blog | Son yazılar |
+| Çağrı Bandı | Başlık ve düğmeler |
+
+**Şehir:** Sıralamalar ziyaretçinin seçtiği şehre göre gösterilir (`?sehir=izmir`). Seçim yoksa **Ayarlar → Ana sayfa varsayılan şehri** kullanılır. Her şehir ayrı adres olduğu için LiteSpeed önbelleğiyle sorunsuz çalışır.
+
+**Arama sayfası (önemli):** Arama ve şehir kartlarının doğru sonuca gitmesi için **Ayarlar → Arama sayfası** alanına Voxel arama sayfanın adresini yaz. Kategori ve şehir parametre adlarını da gir. Bunları bulmak için: Voxel arama sayfasında bir kategori ve şehir filtresi seç, adres çubuğundaki adları kopyala.
+
+**Taht:** Şehrin Sahipleri, işletme panelindeki sıralamayla aynı hesabı kullanır. Taht değişiklikleri kaydedilir; "3 aydır tahtta" rozetleri buradan gelir. 1. ile 2. arasındaki fark çok azsa kart **"Canlı yarış"** olarak işaretlenir.
+
+**Henüz eklenmeyenler:** Prototipteki **Çözüm Liderleri** (şikâyet) ve **Bu hafta** (etkinlik, fırsat, iş ilanı) bölümlerinin sitede verisi yok. Bu post type'lar açılınca eklenebilir.
+
+## 9. Ayarlar (İşletmeBurada → Ayarlar)
 
 - **Düzenleme sayfası adresi:** Boş bırakırsan Voxel'in kendi düzenleme bağlantısı kullanılır.
 - **Varsayılan dönem:** 7, 30 ya da 90 gün.
 - **Sayaç:** Açık/kapalı. İşletme sahipleri ve yöneticiler sayılmaz.
 - **Şehrin Sahipleri:** Puan 10 ya da 5 üzerinden; sıralamaya girmek için gereken en az yorum sayısı.
 
-## 9. Bir şey yanlış görünürse
+## 10. Bir şey yanlış görünürse
 
 **İşletmeBurada → Tanılama** sekmesinde işletmeyi seç. Çıkan metni kopyalayıp gönder.
 

@@ -40,12 +40,7 @@ class IBP_Ranking {
 			return $result;
 		}
 
-		$key   = 'ibp_rank_' . md5( $term->term_id . '|' . IBP_Business::lower_tr( $city ) . '|' . IBP_Settings::get( 'ranking_min_reviews' ) );
-		$board = get_transient( $key );
-		if ( ! is_array( $board ) ) {
-			$board = self::build( $taxonomy, $term->term_id, $city );
-			set_transient( $key, $board, HOUR_IN_SECONDS );
-		}
+		$board = self::board( $taxonomy, $term->term_id, $city );
 
 		$min = (int) IBP_Settings::get( 'ranking_min_reviews' );
 		foreach ( $board as $index => $row ) {
@@ -65,6 +60,56 @@ class IBP_Ranking {
 		$result['needs_reviews'] = null === $result['me'] ? max( 0, $min - $business->review_stats()['count'] ) : 0;
 
 		return $result;
+	}
+
+	/**
+	 * Bir şehir ve kategorinin sıralaması (saatlik önbellekli). Puanlar 1–5 ölçeğinde.
+	 *
+	 * @return array[] id, name, district, average, count, score
+	 */
+	public static function board( $taxonomy, $term_id, $city ) {
+		$key   = 'ibp_rank_' . md5( $term_id . '|' . IBP_Business::lower_tr( $city ) . '|' . IBP_Settings::get( 'ranking_min_reviews' ) );
+		$board = get_transient( $key );
+		if ( ! is_array( $board ) ) {
+			$board = self::build( $taxonomy, $term_id, $city );
+			set_transient( $key, $board, HOUR_IN_SECONDS );
+			self::remember_leader( $term_id, $city, $board ? (int) $board[0]['id'] : 0 );
+		}
+		return $board;
+	}
+
+	/**
+	 * Tahttaki işletmeyi ve ne zamandan beri orada olduğunu saklar.
+	 */
+	private static function remember_leader( $term_id, $city, $leader ) {
+		$key     = $term_id . '|' . IBP_Business::lower_tr( $city );
+		$history = get_option( 'ibp_crowns', array() );
+		$history = is_array( $history ) ? $history : array();
+		if ( ! $leader ) {
+			unset( $history[ $key ] );
+		} elseif ( ( $history[ $key ]['id'] ?? 0 ) !== $leader ) {
+			$history[ $key ] = array( 'id' => $leader, 'since' => time() );
+		}
+		update_option( 'ibp_crowns', $history, false );
+	}
+
+	/**
+	 * İşletme kaç aydır tahtta? 0 = bu ay çıktı; null = tahtta değil.
+	 */
+	public static function reign_months( $term_id, $city, $leader ) {
+		$history = get_option( 'ibp_crowns', array() );
+		$entry   = $history[ $term_id . '|' . IBP_Business::lower_tr( $city ) ] ?? null;
+		if ( ! $entry || (int) $entry['id'] !== (int) $leader ) {
+			return null;
+		}
+		return (int) floor( ( time() - (int) $entry['since'] ) / ( 30 * DAY_IN_SECONDS ) );
+	}
+
+	/**
+	 * Ölçeğe çevrilmiş puan (ayarlardaki 5 ya da 10).
+	 */
+	public static function scaled( $score ) {
+		return $score * (int) IBP_Settings::get( 'ranking_scale' ) / 5;
 	}
 
 	/**
@@ -142,7 +187,7 @@ class IBP_Ranking {
 	/**
 	 * Satırda şehrin yanında gösterilecek semt: adresin şehirden önceki parçası.
 	 */
-	private static function district( IBP_Business $business ) {
+	public static function district( IBP_Business $business ) {
 		$location = $business->field( 'location' );
 		if ( is_string( $location ) ) {
 			$location = json_decode( $location, true );

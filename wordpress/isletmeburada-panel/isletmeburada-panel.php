@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       İşletmeBurada Panel
  * Description:       İşletme paneli tasarımını Voxel verisiyle çalışan Elementor widget'ları olarak ekler.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            İşletmeBurada
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IBP_VERSION', '0.5.0' );
+define( 'IBP_VERSION', '0.6.0' );
 define( 'IBP_FILE', __FILE__ );
 define( 'IBP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IBP_URL', plugin_dir_url( __FILE__ ) );
@@ -25,6 +25,9 @@ require_once IBP_DIR . 'includes/class-ibp-business.php';
 require_once IBP_DIR . 'includes/class-ibp-sectors.php';
 require_once IBP_DIR . 'includes/class-ibp-network.php';
 require_once IBP_DIR . 'includes/class-ibp-user.php';
+require_once IBP_DIR . 'includes/class-ibp-tr.php';
+require_once IBP_DIR . 'includes/class-ibp-city.php';
+require_once IBP_DIR . 'includes/class-ibp-home.php';
 require_once IBP_DIR . 'includes/class-ibp-reviews.php';
 require_once IBP_DIR . 'includes/class-ibp-tracker.php';
 require_once IBP_DIR . 'includes/class-ibp-ranking.php';
@@ -65,6 +68,8 @@ function ibp_boot() {
 function ibp_register_assets() {
 	wp_register_style( 'ibp-panel', IBP_URL . 'assets/panel.css', array(), IBP_VERSION );
 	wp_register_script( 'ibp-panel', IBP_URL . 'assets/panel.js', array(), IBP_VERSION, true );
+	wp_register_style( 'ibp-home', IBP_URL . 'assets/home.css', array(), IBP_VERSION );
+	wp_register_script( 'ibp-home', IBP_URL . 'assets/home.js', array(), IBP_VERSION, true );
 }
 
 function ibp_enqueue_assets() {
@@ -91,6 +96,13 @@ function ibp_register_category( $elements_manager ) {
 		array(
 			'title' => 'İşletmeBurada',
 			'icon'  => 'fa fa-store',
+		)
+	);
+	$elements_manager->add_category(
+		'isletmeburada-home',
+		array(
+			'title' => 'İşletmeBurada Ana Sayfa',
+			'icon'  => 'fa fa-home',
 		)
 	);
 }
@@ -122,6 +134,22 @@ function ibp_register_widgets( $widgets_manager ) {
 
 	foreach ( $widgets as $file => $class ) {
 		require_once IBP_DIR . 'includes/widgets/class-ibp-widget-' . $file . '.php';
+		$widgets_manager->register( new $class() );
+	}
+
+	require_once IBP_DIR . 'includes/widgets/class-ibp-home-widget-base.php';
+	$home = array(
+		'hero'         => 'IBP_Home_Hero',
+		'crowns'       => 'IBP_Home_Crowns',
+		'ranking'      => 'IBP_Home_Ranking',
+		'cities'       => 'IBP_Home_Cities',
+		'pricing'      => 'IBP_Home_Pricing',
+		'testimonials' => 'IBP_Home_Testimonials',
+		'blog'         => 'IBP_Home_Blog',
+		'cta'          => 'IBP_Home_Cta',
+	);
+	foreach ( $home as $file => $class ) {
+		require_once IBP_DIR . 'includes/widgets/class-ibp-home-' . $file . '.php';
 		$widgets_manager->register( new $class() );
 	}
 }

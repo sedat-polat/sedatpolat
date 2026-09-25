@@ -16,6 +16,7 @@ class IBP_Admin {
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_post_ibp_create_pages', array( __CLASS__, 'create_pages' ) );
 		add_action( 'admin_post_ibp_flush_ranking', array( __CLASS__, 'flush_ranking' ) );
+		add_action( 'admin_post_ibp_create_home', array( __CLASS__, 'create_home' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( IBP_FILE ), array( __CLASS__, 'action_links' ) );
 	}
 
@@ -54,6 +55,21 @@ class IBP_Admin {
 
 		IBP_Page_Builder::create();
 		wp_safe_redirect( self::url( 'status', array( 'ibp_msg' => 'created' ) ) );
+		exit;
+	}
+
+	public static function create_home() {
+		if ( ! current_user_can( 'manage_options' ) || ! check_admin_referer( 'ibp_create_home' ) ) {
+			wp_die( 'Bu işlem için yetkin yok.' );
+		}
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			wp_safe_redirect( self::url( 'status', array( 'ibp_msg' => 'no-elementor' ) ) );
+			exit;
+		}
+		IBP_Page_Builder::create_home();
+		delete_transient( 'ibp_city_counts' );
+		delete_transient( 'ibp_home_stats' );
+		wp_safe_redirect( self::url( 'status', array( 'ibp_msg' => 'home' ) ) );
 		exit;
 	}
 
@@ -119,6 +135,7 @@ class IBP_Admin {
 		$messages = array(
 			'created'      => array( 'success', 'Panel sayfaları oluşturuldu/güncellendi. Aşağıdan açıp Elementor ile düzenleyebilirsin.' ),
 			'flushed'      => array( 'success', 'Şehrin Sahipleri sıralaması yeniden hesaplanacak.' ),
+			'home'         => array( 'success', 'Ana sayfa taslağı hazır. Önizleyip beğenirsen Ayarlar → Okuma → "Ana sayfa" olarak seç.' ),
 			'no-elementor' => array( 'error', 'Sayfa oluşturmak için Elementor etkin olmalı.' ),
 		);
 		$key = isset( $_GET['ibp_msg'] ) ? sanitize_key( $_GET['ibp_msg'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -179,6 +196,24 @@ class IBP_Admin {
 			<?php submit_button( $pages ? 'Sayfaları varsayılan düzene sıfırla (eksik sayfayı ekler)' : 'Panel sayfalarını oluştur', $pages ? 'secondary' : 'primary', 'submit', false ); ?>
 		</form>
 
+		<h2 style="margin-top:28px">Ana sayfa</h2>
+		<p>Prototipteki ana sayfayı (arama, Şehrin Sahipleri, kategori sıralaması, şehirler, paketler, referanslar, blog, çağrı bandı) <strong>taslak</strong> bir sayfa olarak kurar; mevcut ana sayfan değişmez. Sitenin üst menüsü ve alt bilgisi korunur.</p>
+		<?php $home = IBP_Page_Builder::existing()['home'] ?? 0; ?>
+		<?php if ( $home ) : ?>
+			<p>
+				<a class="button" href="<?php echo esc_url( get_preview_post_link( $home ) ?: get_permalink( $home ) ); ?>" target="_blank" rel="noopener">Önizle</a>
+				<a class="button" href="<?php echo esc_url( admin_url( 'post.php?post=' . $home . '&action=elementor' ) ); ?>">Elementor ile düzenle</a>
+				<a class="button" href="<?php echo esc_url( admin_url( 'options-reading.php' ) ); ?>">Ana sayfa olarak ayarla</a>
+				<span class="description" style="margin-left:8px">Durum: <?php echo esc_html( 'publish' === get_post_status( $home ) ? 'Yayında' : 'Taslak' ); ?></span>
+			</p>
+		<?php endif; ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"<?php echo $home ? ' onsubmit="return confirm(\'Ana sayfa taslağındaki Elementor değişikliklerin silinip varsayılan düzen yeniden kurulacak. Devam edilsin mi?\')"' : ''; ?>>
+			<input type="hidden" name="action" value="ibp_create_home">
+			<?php wp_nonce_field( 'ibp_create_home' ); ?>
+			<?php submit_button( $home ? 'Ana sayfa taslağını varsayılana sıfırla' : 'Ana sayfa taslağı oluştur', $home ? 'secondary' : 'primary', 'submit', false ); ?>
+		</form>
+		<p class="description">Arama ve şehir kartlarının doğru sonuca gitmesi için <strong>Ayarlar → Arama sayfası</strong> alanını doldur.</p>
+
 		<h2 style="margin-top:28px">Widget'lar</h2>
 		<p>Elementor'da <strong>İşletmeBurada</strong> başlığı altında bulunur.</p>
 		<table class="widefat striped" style="max-width:800px">
@@ -220,6 +255,14 @@ class IBP_Admin {
 			'Kişisel Liste'      => 'Bireysel panel: Yorumlarım, Favorilerim, Takip ettiklerim ya da Rezervasyon ve siparişlerim.',
 			'Hızlı Git'          => 'İkonlu kısayol kutuları, sayı rozetleriyle.',
 			'Tanıtım Kutusu'     => 'Koyu tanıtım kutusu (ör. Bireysel Plus); paketi olan rollerde gizlenir.',
+			'Ana Sayfa: Arama'   => 'Başlık ve 3 adımlı arama: kategori → şehir → Voxel arama sayfası.',
+			'Ana Sayfa: Şehrin Sahipleri' => 'Her kategoride şehrin tahtındaki işletme, rakip farkı ve Yarış Arenası.',
+			'Ana Sayfa: Kategori Sıralaması' => 'Bir kategorinin şehirdeki en yüksek puanlı, en popüler ve yükselen işletmeleri.',
+			'Ana Sayfa: Şehirler' => 'Öne çıkan şehir kartları, işletme sayıları ve tüm iller.',
+			'Ana Sayfa: İşletme Paketleri' => 'İşletme sahiplerine tanıtım ve düzenlenebilir paketler.',
+			'Ana Sayfa: Referanslar' => 'Sitedeki gerçek 4–5 yıldızlı yorumlar ya da elle yazılanlar.',
+			'Ana Sayfa: Blog'    => 'Son blog yazıları.',
+			'Ana Sayfa: Çağrı Bandı' => 'Koyu çağrı bandı ve düğmeler.',
 		);
 	}
 
@@ -268,6 +311,20 @@ class IBP_Admin {
 				<tr>
 					<th scope="row"><label for="ibp-min">Sıralamaya girmek için en az yorum</label></th>
 					<td><input id="ibp-min" type="number" min="1" max="50" class="small-text" name="<?php echo esc_attr( $n ); ?>[ranking_min_reviews]" value="<?php echo esc_attr( $s['ranking_min_reviews'] ); ?>"></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="ibp-home-city">Ana sayfa varsayılan şehri</label></th>
+					<td><input id="ibp-home-city" class="regular-text" name="<?php echo esc_attr( $n ); ?>[home_city]" value="<?php echo esc_attr( $s['home_city'] ); ?>"><p class="description">Ziyaretçi şehir seçmediyse ana sayfadaki sıralamalar bu şehir için gösterilir. Şehir ?sehir=izmir ile değişir.</p></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="ibp-search-url">Arama sayfası</label></th>
+					<td>
+						<input id="ibp-search-url" class="regular-text" name="<?php echo esc_attr( $n ); ?>[search_url]" value="<?php echo esc_attr( $s['search_url'] ); ?>" placeholder="https://isletmeburada.com/isletmeler/">
+						<p class="description">Ana sayfadaki arama, kategori ve şehir kartları bu sayfaya gider. Voxel arama formundaki filtre anahtarlarını yaz:</p>
+						<label>Kategori parametresi <input class="small-text" style="width:120px" name="<?php echo esc_attr( $n ); ?>[cat_param]" value="<?php echo esc_attr( $s['cat_param'] ); ?>"></label>
+						<label style="margin-left:12px">Şehir parametresi <input class="small-text" style="width:120px" name="<?php echo esc_attr( $n ); ?>[city_param]" value="<?php echo esc_attr( $s['city_param'] ); ?>"></label>
+						<p class="description">Örnek sonuç: /isletmeler/?kategori=restaurant&amp;sehir=izmir. Voxel'de bir filtre uygulayıp adres çubuğundaki adları buraya kopyalayabilirsin.</p>
+					</td>
 				</tr>
 				<tr>
 					<th scope="row">Yerel rehber puanı (bireysel panel)</th>

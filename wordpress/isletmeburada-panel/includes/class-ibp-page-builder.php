@@ -33,7 +33,7 @@ class IBP_Page_Builder {
 			'personal' => get_permalink( $personal ),
 		);
 		// Menülerdeki {personal_panel}/{business_panel} bağlantıları bu kayda bakar.
-		update_option( self::OPTION, array( 'overview' => $overview, 'stats' => $stats, 'network' => $network, 'personal' => $personal ) );
+		update_option( self::OPTION, array_merge( $pages, array( 'overview' => $overview, 'stats' => $stats, 'network' => $network, 'personal' => $personal ) ) );
 
 		self::save_elementor( $overview, self::shell( $urls, 'Genel bakış', 'İşletmenin bu dönemki durumu ve bekleyen işler.', self::overview_content( $urls ) ) );
 		self::save_elementor( $stats, self::shell( $urls, 'İstatistikler', 'Profilini kaç kişinin görüp iletişime geçtiği.', self::stats_content() ) );
@@ -60,6 +60,55 @@ class IBP_Page_Builder {
 		}
 
 		return self::existing();
+	}
+
+	/**
+	 * Ana sayfa taslağı: sitenin üst menüsü ve alt bilgisi korunur (Elementor Tam Genişlik),
+	 * sayfa taslak olarak oluşur; beğenilince Ayarlar → Okuma'dan ana sayfa yapılır.
+	 */
+	public static function create_home() {
+		$pages = self::existing();
+		$home  = $pages['home'] ?? (int) wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'draft',
+				'post_title'  => 'Ana Sayfa (yeni)',
+				'post_name'   => 'ana-sayfa-yeni',
+			)
+		);
+		$widgets = array(
+			self::widget( 'ibp-home-hero' ),
+			self::widget( 'ibp-home-crowns', array( 'cta_url' => home_url( '/' ) ) ),
+			self::widget( 'ibp-home-ranking' ),
+			self::widget( 'ibp-home-cities' ),
+			self::widget( 'ibp-home-pricing' ),
+			self::widget( 'ibp-home-testimonials' ),
+			self::widget( 'ibp-home-blog' ),
+			self::widget( 'ibp-home-cta' ),
+		);
+		self::save_elementor(
+			$home,
+			array(
+				self::container(
+					array(
+						'content_width'  => 'full',
+						'flex_direction' => 'column',
+						'padding'        => self::box( 0, 0, 0, 0 ),
+						'flex_gap'       => self::gap( 0 ),
+					),
+					$widgets,
+					false
+				),
+			),
+			'elementor_header_footer'
+		);
+		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->files_manager ) ) {
+			\Elementor\Plugin::$instance->files_manager->clear_cache();
+		}
+		$pages         = self::existing();
+		$pages['home'] = $home;
+		update_option( self::OPTION, $pages );
+		return $home;
 	}
 
 	/**
@@ -108,10 +157,10 @@ class IBP_Page_Builder {
 		);
 	}
 
-	private static function save_elementor( $post_id, array $elements ) {
+	private static function save_elementor( $post_id, array $elements, $template = 'elementor_canvas' ) {
 		update_post_meta( $post_id, '_elementor_edit_mode', 'builder' );
 		update_post_meta( $post_id, '_elementor_template_type', 'wp-page' );
-		update_post_meta( $post_id, '_wp_page_template', 'elementor_canvas' );
+		update_post_meta( $post_id, '_wp_page_template', $template );
 		if ( defined( 'ELEMENTOR_VERSION' ) ) {
 			update_post_meta( $post_id, '_elementor_version', ELEMENTOR_VERSION );
 		}
