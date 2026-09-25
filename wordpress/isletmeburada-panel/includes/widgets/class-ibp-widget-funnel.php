@@ -51,7 +51,7 @@ class IBP_Widget_Funnel extends IBP_Widget_Base {
 		foreach ( IBP_Tracker::TYPES as $type => $label ) {
 			$rows[ $type ] = array(
 				'label' => $label,
-				'total' => IBP_Tracker::summary( $business->id, $type, $days )['total'],
+				'total' => IBP_Tracker::summary( IBP_Business::scope()['ids'], $type, $days )['total'],
 			);
 		}
 		$views    = max( 1, $rows['view']['total'] );

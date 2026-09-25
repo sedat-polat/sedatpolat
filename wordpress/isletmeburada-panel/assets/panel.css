@@ -385,6 +385,7 @@
 }
 
 .ibp-btn--sm {
+	white-space: nowrap;
 	height: 32px;
 	padding: 0 12px;
 	font-size: 13px;
@@ -1063,6 +1064,277 @@
 .ibp-funnel__head strong {
 	color: var(--ibp-text);
 	font-variant-numeric: tabular-nums;
+}
+
+/* Bağlı işletmeler ---------------------------------------------------- */
+
+.ibp-net {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.ibp-alert {
+	padding: 10px 14px;
+	border-radius: 8px;
+	border: 1px solid #A7F3D0;
+	background: #ECFDF5;
+	color: #065F46;
+	font-size: 14px;
+}
+
+.ibp-alert--error {
+	border-color: #FECDCA;
+	background: #FEF3F2;
+	color: var(--ibp-down);
+}
+
+.ibp-net__list {
+	padding: 10px 0 6px;
+}
+
+.ibp-net__row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding: 12px 20px;
+	border-top: 1px solid var(--ibp-line);
+}
+
+.ibp-card__body .ibp-net__row {
+	padding: 12px 0 0;
+}
+
+.ibp-net__main,
+.ibp-net__cell-main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.ibp-net__name {
+	font-size: 14px;
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ibp-net__meta {
+	margin-top: 2px;
+	font-size: 12px;
+	color: var(--ibp-muted);
+}
+
+.ibp-net__actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.ibp-inline-form {
+	display: inline-flex;
+	margin: 0;
+}
+
+.ibp-net__table {
+	margin-top: 14px;
+}
+
+.ibp-net__tr {
+	display: grid;
+	/* Son sütun sabit: her satır ayrı ızgara olduğundan "auto" başlıkları kaydırır. */
+	grid-template-columns: minmax(0, 2.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 0.6fr) minmax(0, 0.7fr) 150px;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 20px;
+	border-top: 1px solid var(--ibp-line);
+	font-size: 14px;
+}
+
+.ibp-net__th {
+	padding-top: 0;
+	padding-bottom: 8px;
+	border-top: 0;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ibp-muted);
+}
+
+.ibp-num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.ibp-net__foot {
+	padding: 0 20px 16px;
+}
+
+.ibp-net__status {
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.ibp-net__search {
+	display: flex;
+	gap: 8px;
+}
+
+.ibp-input {
+	flex: 1;
+	min-width: 0;
+	height: 40px;
+	padding: 0 12px;
+	border: 1px solid var(--ibp-border-2);
+	border-radius: 8px;
+	background: #FFFFFF;
+	color: var(--ibp-text);
+	font: inherit;
+	font-size: 14px;
+}
+
+.ibp-input:focus,
+.ibp-select--inline:focus {
+	outline: none;
+	border-color: var(--ibp-accent-soft);
+	box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.18);
+}
+
+.ibp .ibp-select--inline {
+	width: auto;
+	height: 32px;
+	background: #FFFFFF;
+	border-color: var(--ibp-border-2);
+	font-size: 13px;
+}
+
+.ibp-pill {
+	display: inline-flex;
+	align-items: center;
+	height: 22px;
+	padding: 0 9px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+	background: var(--ibp-line);
+	color: var(--ibp-text-2);
+}
+
+.ibp-pill--sube {
+	background: #DBEAFE;
+	color: #1E40AF;
+}
+
+.ibp-pill--bayi {
+	background: #FEF3C7;
+	color: #92400E;
+}
+
+.ibp-pill--franchise {
+	background: #EDE9FE;
+	color: #5B21B6;
+}
+
+.ibp-pill--pending {
+	background: #FEF3C7;
+	color: #92400E;
+}
+
+.ibp-pill--ok {
+	background: #D1FAE5;
+	color: #065F46;
+}
+
+.ibp button.ibp-btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.ibp .ibp-btn--primary.ibp-btn--sm {
+	gap: 6px;
+}
+
+/* Marka görünümü eklemeleri --------------------------------------------- */
+
+.ibp .ibp-rank__row--link {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.ibp .ibp-rank__row--link:hover {
+	background: rgba(255, 255, 255, 0.06);
+	color: #FFFFFF;
+}
+
+.ibp-rank__score--wide {
+	width: auto;
+	min-width: 32px;
+}
+
+.ibp-opt__main {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ibp-opt__meta {
+	font-weight: 700;
+	color: var(--ibp-accent);
+}
+
+.ibp-review__biz {
+	margin-top: 1px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ibp-muted);
+}
+
+@media (max-width: 767px) {
+	.ibp-net__th {
+		display: none;
+	}
+
+	.ibp-net__tr {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		padding: 12px 16px;
+		row-gap: 8px;
+	}
+
+	.ibp-net__cell-main {
+		grid-column: 1 / -1;
+	}
+
+	.ibp-net__tr .ibp-num {
+		text-align: left;
+	}
+
+	.ibp-net__tr .ibp-num::before {
+		content: attr(data-label);
+		display: block;
+		font-size: 11px;
+		color: var(--ibp-muted);
+	}
+
+	.ibp-net__tr .ibp-net__actions {
+		grid-column: 1 / -1;
+		justify-content: flex-start;
+	}
+
+	.ibp-net__row {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.ibp-net__search {
+		flex-direction: column;
+	}
 }
 
 /* Panel düzeni: "ibp-sidebar" sınıflı container ------------------------ */

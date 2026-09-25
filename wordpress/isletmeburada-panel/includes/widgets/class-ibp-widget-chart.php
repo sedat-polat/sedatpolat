@@ -85,7 +85,7 @@ class IBP_Widget_Chart extends IBP_Widget_Base {
 
 		$settings = $this->get_settings_for_display();
 		$days     = IBP_Tracker::period();
-		$series   = IBP_Tracker::daily( $business->id, IBP_Tracker::metric_types( $settings['metric'] ), $days );
+		$series   = IBP_Tracker::daily( IBP_Business::scope()['ids'], IBP_Tracker::metric_types( $settings['metric'] ), $days );
 		$values   = array_values( $series );
 		$dates    = array_keys( $series );
 		$max      = max( 1, max( $values ) );

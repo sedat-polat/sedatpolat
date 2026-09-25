@@ -67,22 +67,46 @@ class IBP_Business {
 	}
 
 	/**
-	 * Panelde gösterilecek işletme. Yoksa null.
+	 * Panelde gösterilecek işletme. "Tüm bağlı işletmeler" seçiliyse markanın kendisi.
+	 * Kapsamın tamamı için IBP_Business::scope() kullanılır.
 	 *
 	 * @return IBP_Business|null
 	 */
 	public static function current() {
-		static $cache = false;
-		if ( false !== $cache ) {
+		return self::scope()['business'];
+	}
+
+	/**
+	 * Panelin kapsamı.
+	 *
+	 * @return array{business:IBP_Business|null, brand:bool, ids:int[], children:int[]}
+	 *   brand: "Tüm bağlı işletmeler" görünümü mü; ids: verisi toplanacak işletmeler.
+	 */
+	public static function scope() {
+		static $cache = null;
+		if ( null !== $cache ) {
 			return $cache;
 		}
 
-		$ids = self::owned_ids();
-		$id  = 0;
+		$cache = array( 'business' => null, 'brand' => false, 'ids' => array(), 'children' => array() );
+		$ids   = IBP_Network::accessible_ids();
+		$saved = (string) get_user_meta( get_current_user_id(), self::USER_META, true );
+		$id    = 0;
+
+		if ( 0 === strpos( $saved, 'brand:' ) ) {
+			$brand    = (int) substr( $saved, 6 );
+			$children = in_array( $brand, self::owned_ids(), true ) ? IBP_Network::children( $brand ) : array();
+			if ( $children ) {
+				$cache['business'] = self::from_id( $brand );
+				$cache['brand']    = true;
+				$cache['children'] = $children;
+				$cache['ids']      = array_merge( array( $brand ), $children );
+				return $cache;
+			}
+		}
 
 		if ( $ids ) {
-			$saved = (int) get_user_meta( get_current_user_id(), self::USER_META, true );
-			$id    = in_array( $saved, $ids, true ) ? $saved : $ids[0];
+			$id = in_array( (int) $saved, $ids, true ) ? (int) $saved : $ids[0];
 		} elseif ( self::is_editor_preview() ) {
 			// Elementor'da düzenlerken örnek olarak son işletmeyi göster.
 			$latest = get_posts(
@@ -97,9 +121,55 @@ class IBP_Business {
 			$id     = $latest ? (int) $latest[0] : 0;
 		}
 
-		$post  = $id ? get_post( $id ) : null;
-		$cache = $post ? new self( $post ) : null;
+		$business = $id ? self::from_id( $id ) : null;
+		if ( $business ) {
+			$cache['business'] = $business;
+			$cache['ids']      = array( $business->id );
+		}
 		return $cache;
+	}
+
+	/**
+	 * Paneli başka bir işletmeye (ya da "brand:ID" ile marka görünümüne) geçiren adres.
+	 */
+	public static function switch_url( $value ) {
+		return add_query_arg(
+			array(
+				'ibp_isletme' => (string) $value,
+				'_ibpnonce'   => wp_create_nonce( self::NONCE ),
+			),
+			remove_query_arg( array( 'ibp_isletme', '_ibpnonce', 'ibp_net' ) )
+		);
+	}
+
+	/**
+	 * Seçme kutusunun seçenekleri: kendi işletmeleri, markalarının toplu görünümü ve
+	 * bağlı işletmeleri.
+	 *
+	 * @return array[] Her biri: value, label, group.
+	 */
+	public static function switch_options() {
+		$options = array();
+		foreach ( self::owned_ids() as $id ) {
+			$children = IBP_Network::children( $id );
+			if ( ! $children ) {
+				continue;
+			}
+			$group     = get_the_title( $id ) . ' markası';
+			$options[] = array( 'value' => 'brand:' . $id, 'label' => sprintf( 'Tüm bağlı işletmeler (%d)', count( $children ) + 1 ), 'group' => $group );
+			$options[] = array( 'value' => (string) $id, 'label' => get_the_title( $id ) . ' (merkez)', 'group' => $group );
+			foreach ( $children as $child ) {
+				$link      = IBP_Network::link_of( $child );
+				$options[] = array( 'value' => (string) $child, 'label' => get_the_title( $child ) . ' · ' . IBP_Network::types()[ $link['type'] ], 'group' => $group );
+			}
+		}
+		$grouped = wp_list_pluck( $options, 'value' );
+		foreach ( self::owned_ids() as $id ) {
+			if ( ! in_array( (string) $id, $grouped, true ) ) {
+				$options[] = array( 'value' => (string) $id, 'label' => get_the_title( $id ), 'group' => $options ? 'Diğer işletmelerim' : '' );
+			}
+		}
+		return $options;
 	}
 
 	public static function is_editor_preview() {
@@ -124,9 +194,9 @@ class IBP_Business {
 		if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_ibpnonce'] ) ), self::NONCE ) ) {
 			return;
 		}
-		$id = absint( $_GET['ibp_isletme'] );
-		if ( in_array( $id, self::owned_ids(), true ) ) {
-			update_user_meta( get_current_user_id(), self::USER_META, $id );
+		$value = sanitize_text_field( wp_unslash( $_GET['ibp_isletme'] ) );
+		if ( in_array( $value, wp_list_pluck( self::switch_options(), 'value' ), true ) ) {
+			update_user_meta( get_current_user_id(), self::USER_META, $value );
 		}
 		wp_safe_redirect( remove_query_arg( array( 'ibp_isletme', '_ibpnonce' ) ) );
 		exit;
@@ -325,6 +395,29 @@ class IBP_Business {
 		}
 	}
 
+	/**
+	 * Birden çok işletmenin toplam yorum sayısı ve yorum sayısına göre ağırlıklı ortalaması.
+	 *
+	 * @param int[] $ids
+	 * @return array{count:int, average:float|null}
+	 */
+	public static function combined_review_stats( array $ids ) {
+		$count = 0;
+		$sum   = 0.0;
+		foreach ( $ids as $id ) {
+			$business = self::from_id( $id );
+			if ( ! $business ) {
+				continue;
+			}
+			$stats = $business->review_stats();
+			if ( $stats['count'] && null !== $stats['average'] ) {
+				$count += $stats['count'];
+				$sum   += $stats['count'] * $stats['average'];
+			}
+		}
+		return array( 'count' => $count, 'average' => $count ? $sum / $count : null );
+	}
+
 	/* ---------------------------------------------------------------------
 	 * Profil doluluğu
 	 * ------------------------------------------------------------------ */
@@ -423,6 +516,73 @@ class IBP_Business {
 		}
 
 		return apply_filters( 'ibp_todos', $todos, $this );
+	}
+
+	/**
+	 * Panel kapsamına göre bekleyen işler: tek işletmede kendi işleri, marka görünümünde
+	 * bağlanma istekleri ve bağlı işletmelerin toplu durumu.
+	 */
+	public static function scope_todos( $reviews_url = '' ) {
+		$scope    = self::scope();
+		$business = $scope['business'];
+		if ( ! $business ) {
+			return array();
+		}
+		$network = IBP_Network::page_url();
+		$todos   = array();
+
+		// Markaya gelen bağlanma istekleri (tek işletme görünümünde de gösterilir).
+		$requests = IBP_Network::children( $business->id, 'pending' );
+		if ( $requests && (int) $business->post->post_author === get_current_user_id() ) {
+			$todos[] = array(
+				'n'     => (string) count( $requests ),
+				'title' => 'bağlanma isteği onay bekliyor',
+				'sub'   => implode( ', ', array_map( 'get_the_title', array_slice( $requests, 0, 3 ) ) ),
+				'url'   => $network ?: $business->permalink(),
+			);
+		}
+
+		// Alt işletmenin markaya bağlantısı henüz onaylanmadıysa.
+		$link = IBP_Network::link_of( $business->id );
+		if ( ! $scope['brand'] && $link && 'pending' === $link['status'] ) {
+			$todos[] = array(
+				'n'     => '…',
+				'title' => 'Marka onayı bekleniyor',
+				'sub'   => sprintf( '%s markasına %s olarak bağlanma isteğin gönderildi.', get_the_title( $link['parent'] ), IBP_Network::types()[ $link['type'] ] ),
+				'url'   => $network ?: $business->permalink(),
+			);
+		}
+
+		if ( ! $scope['brand'] ) {
+			return apply_filters( 'ibp_scope_todos', array_merge( $todos, $business->todos( $reviews_url ) ), $scope );
+		}
+
+		$unanswered = 0;
+		$incomplete = array();
+		$pending    = array();
+		foreach ( $scope['ids'] as $id ) {
+			$item = self::from_id( $id );
+			if ( ! $item ) {
+				continue;
+			}
+			$unanswered += (int) IBP_Reviews::unanswered( $item );
+			if ( $item->completeness()['missing'] ) {
+				$incomplete[] = $item->name();
+			}
+			if ( 'publish' !== $item->post->post_status ) {
+				$pending[] = $item->name();
+			}
+		}
+		if ( $unanswered ) {
+			$todos[] = array( 'n' => (string) $unanswered, 'title' => 'yorum yanıt bekliyor', 'sub' => 'Marka ve bağlı işletmelerin toplamı.', 'url' => $reviews_url ? $business->resolve_url( $reviews_url ) : $business->permalink() );
+		}
+		if ( $incomplete ) {
+			$todos[] = array( 'n' => (string) count( $incomplete ), 'title' => 'işletmenin profili eksik', 'sub' => implode( ', ', array_slice( $incomplete, 0, 3 ) ) . ( count( $incomplete ) > 3 ? ' ve diğerleri' : '' ), 'url' => $network ?: $business->permalink() );
+		}
+		if ( $pending ) {
+			$todos[] = array( 'n' => (string) count( $pending ), 'title' => 'işletme yayında değil', 'sub' => implode( ', ', array_slice( $pending, 0, 3 ) ), 'url' => $network ?: $business->permalink() );
+		}
+		return apply_filters( 'ibp_scope_todos', $todos, $scope );
 	}
 
 	/* ---------------------------------------------------------------------

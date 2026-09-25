@@ -73,7 +73,8 @@ class IBP_Widget_Reviews extends IBP_Widget_Base {
 		}
 
 		$settings = $this->get_settings_for_display();
-		$reviews  = IBP_Reviews::recent( $business->id, (int) $settings['count'] );
+		$scope    = IBP_Business::scope();
+		$reviews  = IBP_Reviews::recent( $scope['ids'], (int) $settings['count'] );
 		$all_url  = trim( (string) $settings['all_url'] );
 		?>
 		<div class="ibp ibp-card">
@@ -102,6 +103,9 @@ class IBP_Widget_Reviews extends IBP_Widget_Base {
 								<?php endif; ?>
 								<span class="ibp-review__date"><?php echo esc_html( $review['date'] ); ?></span>
 							</div>
+							<?php if ( $scope['brand'] ) : ?>
+								<div class="ibp-review__biz"><?php echo esc_html( $review['business'] ); ?></div>
+							<?php endif; ?>
 							<?php if ( '' !== $review['text'] ) : ?>
 								<div class="ibp-review__text"><?php echo esc_html( $review['text'] ); ?></div>
 							<?php endif; ?>

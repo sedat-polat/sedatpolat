@@ -36,16 +36,15 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 		$head = function ( $label ) {
 			return array( 'kind' => 'heading', 'label' => $label, 'icon' => 'grid', 'url' => '', 'soon' => '', 'badge' => 'none', 'badge_text' => '' );
 		};
+		$sector = array( 'kind' => 'sector', 'label' => 'Sektör menüsü', 'icon' => 'grid', 'url' => '', 'soon' => '', 'badge' => 'none', 'badge_text' => '' );
 
 		return array(
 			$item( 'Genel bakış', 'grid', $urls['overview'] ?? '#', '', 'todos' ),
 			$item( 'İstatistikler', 'chart', $urls['stats'] ?? '#' ),
-			$head( 'Operasyon' ),
-			$item( 'Rezervasyonlar', 'calcheck', '#', 'yes' ),
-			$item( 'Masa planı', 'tables', '#', 'yes' ),
+			$sector,
 			$head( 'Profil' ),
 			$item( 'İşletme bilgileri', 'store', '{edit}', '', 'missing' ),
-			$item( 'Menü ve fiyatlar', 'list', '#', 'yes' ),
+			$item( '{menu}', 'list', '#', 'yes' ),
 			$head( 'Müşteriler' ),
 			$item( 'Yorumlar', 'star', '{view}', '', 'unanswered' ),
 			$item( 'Şikâyetler', 'alert', '#', 'yes' ),
@@ -53,8 +52,10 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 			$item( 'Fırsatlar', 'tag', '#', 'yes' ),
 			$item( 'Duyurular', 'megaphone', '#', 'yes' ),
 			$item( 'Kuponlar', 'ticket', '#', 'yes' ),
-			$item( 'Etkinlikler', 'calendar', '#', 'yes' ),
+			$item( '{events}', 'calendar', '#', 'yes' ),
 			$item( 'İş ilanları', 'briefcase', '#', 'yes' ),
+			$head( 'Marka' ),
+			$item( 'Bağlı işletmeler', 'network', $urls['network'] ?? '#', '', 'requests' ),
 			$head( 'Hesap' ),
 			$item( 'Paket ve fatura', 'card', '#', 'yes' ),
 			$item( 'Ayarlar', 'sliders', '#', 'yes' ),
@@ -74,15 +75,17 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 				'options' => array(
 					'link'    => 'Bağlantı',
 					'heading' => 'Grup başlığı',
+					'sector'  => 'Sektör menüsü (kategoriye göre)',
 				),
 			)
 		);
 		$repeater->add_control(
 			'label',
 			array(
-				'label'   => 'Yazı',
-				'type'    => Controls_Manager::TEXT,
-				'default' => 'Yeni bağlantı',
+				'label'       => 'Yazı',
+				'description' => '{menu} sektöre göre "Menü ve fiyatlar / Hizmetler ve fiyatlar…", {events} "Etkinlikler / Seanslar ve biletler…" olur.',
+				'type'        => Controls_Manager::TEXT,
+				'default'     => 'Yeni bağlantı',
 			)
 		);
 		$repeater->add_control(
@@ -125,6 +128,7 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 					'none'       => 'Yok',
 					'unanswered' => 'Yanıt bekleyen yorum sayısı',
 					'todos'      => 'Bekleyen iş sayısı',
+					'requests'   => 'Bağlanma isteği sayısı',
 					'missing'    => 'Eksik profil alanı sayısı',
 					'manual'     => 'Elle yazılan',
 				),
@@ -170,11 +174,13 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 		$business = IBP_Business::current();
+		$profile  = $business ? IBP_Sectors::for_business( $business ) : IBP_Sectors::profiles()[ IBP_Sectors::GENERAL ];
+		$items    = $this->expand( self::migrate( (array) $settings['items'] ), $profile );
 		$current  = self::path( add_query_arg( array() ) ); // İstek adresinin yolu.
 		$badges   = array();
 		?>
 		<nav class="ibp ibp-nav" aria-label="Panel menüsü">
-			<?php foreach ( (array) $settings['items'] as $item ) : ?>
+			<?php foreach ( $items as $item ) : ?>
 				<?php if ( 'heading' === $item['kind'] ) : ?>
 					<div class="ibp-nav__group"><?php echo esc_html( $item['label'] ); ?></div>
 					<?php continue; ?>
@@ -204,6 +210,64 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 		<?php
 	}
 
+	/**
+	 * Eski sürümlerin sabit "Operasyon / Rezervasyonlar / Masa planı" öğelerini
+	 * sektör menüsüne çevirir; böylece önceden oluşturulmuş sayfalar da sektöre uyar.
+	 */
+	private static function migrate( array $items ) {
+		if ( in_array( 'sector', wp_list_pluck( $items, 'kind' ), true ) ) {
+			return $items;
+		}
+		$out = array();
+		for ( $i = 0, $n = count( $items ); $i < $n; $i++ ) {
+			$item = $items[ $i ];
+			if ( 'heading' === $item['kind'] && 'Operasyon' === $item['label']
+				&& 'Rezervasyonlar' === ( $items[ $i + 1 ]['label'] ?? '' ) && 'Masa planı' === ( $items[ $i + 2 ]['label'] ?? '' ) ) {
+				$out[] = array( 'kind' => 'sector', 'label' => '', 'icon' => 'grid', 'url' => '', 'soon' => '', 'badge' => 'none', 'badge_text' => '' );
+				$i    += 2;
+				continue;
+			}
+			if ( 'Menü ve fiyatlar' === $item['label'] ) {
+				$item['label'] = '{menu}';
+			} elseif ( 'Etkinlikler' === $item['label'] ) {
+				$item['label'] = '{events}';
+			}
+			$out[] = $item;
+		}
+		return $out;
+	}
+
+	/**
+	 * Sektör öğesini başlık + modüllere açar, {menu}/{events} yazılarını doldurur.
+	 */
+	private function expand( array $items, array $profile ) {
+		$urls = (array) IBP_Settings::get( 'module_urls' );
+		$out  = array();
+		foreach ( $items as $item ) {
+			$item += array( 'icon' => 'grid', 'url' => '', 'soon' => '', 'badge' => 'none', 'badge_text' => '' );
+			if ( 'sector' === $item['kind'] ) {
+				$modules = IBP_Sectors::menu_items( $profile );
+				if ( $modules ) {
+					$out[] = array( 'kind' => 'heading', 'label' => $profile['ops'] ) + $item;
+				}
+				foreach ( $modules as $key => $module ) {
+					$url   = $urls[ $key ] ?? '';
+					$out[] = array(
+						'kind'  => 'link',
+						'label' => $module[0],
+						'icon'  => $module[1],
+						'url'   => '' !== $url ? $url : '#',
+						'soon'  => '' !== $url ? '' : 'yes',
+					) + $item;
+				}
+				continue;
+			}
+			$item['label'] = strtr( (string) $item['label'], array( '{menu}' => $profile['menu'], '{events}' => $profile['events'] ) );
+			$out[]         = $item;
+		}
+		return $out;
+	}
+
 	private function badge( array $item, $business, array $settings, array &$cache ) {
 		$type = $item['badge'] ?? 'none';
 		if ( 'manual' === $type ) {
@@ -218,7 +282,10 @@ class IBP_Widget_Nav extends IBP_Widget_Base {
 					$cache[ $type ] = (int) IBP_Reviews::unanswered( $business );
 					break;
 				case 'todos':
-					$cache[ $type ] = count( $business->todos( $settings['reviews_url'] ) );
+					$cache[ $type ] = count( IBP_Business::scope_todos( $settings['reviews_url'] ) );
+					break;
+				case 'requests':
+					$cache[ $type ] = count( IBP_Network::children( $business->id, 'pending' ) );
 					break;
 				case 'missing':
 					$cache[ $type ] = count( $business->completeness()['missing'] );

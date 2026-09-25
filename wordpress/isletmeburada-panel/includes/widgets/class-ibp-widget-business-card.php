@@ -57,8 +57,14 @@ class IBP_Widget_Business_Card extends IBP_Widget_Base {
 
 		$settings = $this->get_settings_for_display();
 		$logo     = 'yes' === $settings['show_logo'] ? $business->logo_url() : '';
-		$subtitle = $business->subtitle();
-		$owned     = IBP_Business::owned_ids();
+		$scope     = IBP_Business::scope();
+		$subtitle  = $scope['brand'] ? sprintf( 'Marka · %d bağlı işletme', count( $scope['children'] ) ) : $business->subtitle();
+		$link      = $scope['brand'] ? null : IBP_Network::link_of( $business->id );
+		if ( $link && 'approved' === $link['status'] ) {
+			$subtitle = trim( $subtitle . ' · ' . get_the_title( $link['parent'] ) . ' ' . IBP_Network::possessive( $link['type'] ), ' ·' );
+		}
+		$options   = IBP_Business::switch_options();
+		$selected  = $scope['brand'] ? 'brand:' . $business->id : (string) $business->id;
 		$in_editor = IBP_Business::is_editor_preview();
 		?>
 		<div class="ibp ibp-card ibp-biz">
@@ -76,7 +82,7 @@ class IBP_Widget_Business_Card extends IBP_Widget_Base {
 				</div>
 			</div>
 
-			<?php if ( 'yes' === $settings['show_switcher'] && count( $owned ) > 1 ) : ?>
+			<?php if ( 'yes' === $settings['show_switcher'] && count( $options ) > 1 ) : ?>
 				<form class="ibp-biz__switch" method="get"<?php echo $in_editor ? ' onsubmit="return false"' : ''; ?>>
 					<?php foreach ( $this->kept_query_args() as $key => $value ) : ?>
 						<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>">
@@ -85,9 +91,18 @@ class IBP_Widget_Business_Card extends IBP_Widget_Base {
 					<label class="ibp-sr" for="ibp-switch-<?php echo esc_attr( $this->get_id() ); ?>">İşletme seç</label>
 					<?php // Elementor önizlemesinde kutu sayfayı değiştirmesin; yoksa önizleme düzenleyiciden kopar. ?>
 					<select id="ibp-switch-<?php echo esc_attr( $this->get_id() ); ?>" class="ibp-select" name="ibp_isletme" <?php echo $in_editor ? 'disabled title="Düzenleyicide işletme değiştirilemez"' : 'onchange="this.form.submit()"'; ?>>
-						<?php foreach ( $owned as $id ) : ?>
-							<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $id, $business->id ); ?>><?php echo esc_html( get_the_title( $id ) ); ?></option>
+						<?php $group = null; ?>
+						<?php foreach ( $options as $option ) : ?>
+							<?php if ( $option['group'] !== $group ) : ?>
+								<?php echo null !== $group && '' !== $group ? '</optgroup>' : ''; ?>
+								<?php $group = $option['group']; ?>
+								<?php if ( '' !== $group ) : ?>
+									<optgroup label="<?php echo esc_attr( $group ); ?>">
+								<?php endif; ?>
+							<?php endif; ?>
+							<option value="<?php echo esc_attr( $option['value'] ); ?>" <?php selected( $option['value'], $selected ); ?>><?php echo esc_html( $option['label'] ); ?></option>
 						<?php endforeach; ?>
+						<?php echo null !== $group && '' !== $group ? '</optgroup>' : ''; ?>
 					</select>
 					<?php if ( ! $in_editor ) : ?>
 						<noscript><button type="submit" class="ibp-btn ibp-btn--sm">Değiştir</button></noscript>

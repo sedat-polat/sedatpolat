@@ -169,6 +169,7 @@ class IBP_Tracker {
 	/**
 	 * Son $days günün günlük değerleri, eskiden yeniye.
 	 *
+	 * @param int|int[]       $post_id Bir ya da birden çok işletme (marka görünümü).
 	 * @param string|string[] $types
 	 * @return array<string,int> 'Y-m-d' => sayı
 	 */
@@ -187,11 +188,16 @@ class IBP_Tracker {
 		}
 
 		global $wpdb;
-		$in   = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$ids  = array_map( 'intval', (array) $post_id );
+		if ( ! $ids ) {
+			return $series;
+		}
+		$in_ids   = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+		$in_types = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+		$rows     = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				'SELECT day, SUM(hits) AS hits FROM ' . self::table() . " WHERE post_id = %d AND type IN ($in) AND day BETWEEN %s AND %s GROUP BY day", // phpcs:ignore WordPress.DB.PreparedSQL
-				array_merge( array( $post_id ), $types, array( $from->format( 'Y-m-d' ), $to->format( 'Y-m-d' ) ) )
+				'SELECT day, SUM(hits) AS hits FROM ' . self::table() . " WHERE post_id IN ($in_ids) AND type IN ($in_types) AND day BETWEEN %s AND %s GROUP BY day", // phpcs:ignore WordPress.DB.PreparedSQL
+				array_merge( $ids, $types, array( $from->format( 'Y-m-d' ), $to->format( 'Y-m-d' ) ) )
 			)
 		);
 		foreach ( (array) $rows as $row ) {

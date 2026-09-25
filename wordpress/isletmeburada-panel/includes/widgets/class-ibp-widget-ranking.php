@@ -44,6 +44,15 @@ class IBP_Widget_Ranking extends IBP_Widget_Base {
 			)
 		);
 		$this->add_control(
+			'brand_title',
+			array(
+				'label'       => 'Marka görünümünde başlık',
+				'description' => '"Tüm bağlı işletmeler" seçiliyken kart, bağlı işletmeleri sıralar.',
+				'type'        => Controls_Manager::TEXT,
+				'default'     => 'Bağlı işletmeler',
+			)
+		);
+		$this->add_control(
 			'note',
 			array(
 				'label'   => 'Alt açıklama',
@@ -83,6 +92,10 @@ class IBP_Widget_Ranking extends IBP_Widget_Base {
 		}
 
 		$settings = $this->get_settings_for_display();
+		if ( IBP_Business::scope()['brand'] ) {
+			$this->render_brand( $settings );
+			return;
+		}
 		$data     = IBP_Ranking::for_business( $business );
 		$limit    = max( 3, (int) $settings['limit'] );
 		$board    = array_slice( $data['board'], 0, $limit, true );
@@ -151,6 +164,67 @@ class IBP_Widget_Ranking extends IBP_Widget_Base {
 			<?php if ( '' !== $settings['note'] ) : ?>
 				<div class="ibp-rank__note"><?php echo esc_html( $settings['note'] ); ?></div>
 			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Marka görünümü: bağlı işletmeler seçili dönemdeki görüntülenmeye göre sıralanır.
+	 */
+	private function render_brand( array $settings ) {
+		$scope = IBP_Business::scope();
+		$days  = IBP_Tracker::period();
+		$rows  = array();
+		foreach ( $scope['ids'] as $id ) {
+			$item = IBP_Business::from_id( $id );
+			if ( ! $item ) {
+				continue;
+			}
+			$link   = IBP_Network::link_of( $id );
+			$rows[] = array(
+				'id'     => $id,
+				'name'   => $item->name(),
+				'type'   => $link ? IBP_Network::types()[ $link['type'] ] : 'Merkez',
+				'views'  => IBP_Tracker::summary( $id, 'view', $days )['total'],
+				'rating' => $item->review_stats()['average'],
+			);
+		}
+		usort(
+			$rows,
+			function ( $a, $b ) {
+				return $b['views'] <=> $a['views'] ?: strcmp( $a['name'], $b['name'] );
+			}
+		);
+		$limit = max( 3, (int) $settings['limit'] );
+		$top   = $rows[0] ?? null;
+		?>
+		<div class="ibp ibp-rank">
+			<div class="ibp-rank__head">
+				<div class="ibp-rank__title"><?php echo IBP_Icons::svg( 'network' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><?php echo esc_html( $settings['brand_title'] ); ?></div>
+				<span class="ibp-rank__scope"><?php echo esc_html( sprintf( '%d işletme, son %d gün', count( $rows ), $days ) ); ?></span>
+			</div>
+			<?php if ( $top && $top['views'] > 0 ) : ?>
+				<div class="ibp-rank__hero">
+					<span class="ibp-rank__num">1.</span>
+					<div>
+						<div class="ibp-rank__line"><?php echo esc_html( $top['name'] ); ?></div>
+						<div class="ibp-rank__gap"><?php echo esc_html( sprintf( '%s görüntülemeyle en çok ilgi gören işletmen.', number_format_i18n( $top['views'] ) ) ); ?></div>
+					</div>
+				</div>
+			<?php else : ?>
+				<div class="ibp-rank__empty">Sayaç veri topladıkça bağlı işletmelerin burada görüntülenmeye göre sıralanacak.</div>
+			<?php endif; ?>
+			<div class="ibp-rank__board">
+				<?php foreach ( array_slice( $rows, 0, $limit ) as $index => $row ) : ?>
+					<a class="ibp-rank__row ibp-rank__row--link" href="<?php echo esc_url( IBP_Business::switch_url( $row['id'] ) ); ?>" title="Bu işletmenin paneline geç">
+						<span class="ibp-rank__pos"><?php echo esc_html( $index + 1 ); ?></span>
+						<span class="ibp-rank__name"><?php echo esc_html( $row['name'] ); ?></span>
+						<span class="ibp-rank__district"><?php echo esc_html( $row['type'] ); ?></span>
+						<span class="ibp-rank__score ibp-rank__score--wide"><?php echo esc_html( number_format_i18n( $row['views'] ) ); ?></span>
+					</a>
+				<?php endforeach; ?>
+			</div>
+			<div class="ibp-rank__note">Sayı, seçili dönemdeki profil görüntülemesidir. Bir satıra tıklayınca o işletmenin paneline geçersin.</div>
 		</div>
 		<?php
 	}

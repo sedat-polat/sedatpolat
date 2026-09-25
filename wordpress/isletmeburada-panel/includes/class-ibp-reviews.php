@@ -41,6 +41,9 @@ class IBP_Reviews {
 	/**
 	 * @return array[] Her biri: name, initials, stars (1–5 ya da null), text, date.
 	 */
+	/**
+	 * @param int|int[] $post_id Bir ya da birden çok işletme (marka görünümü).
+	 */
 	public static function recent( $post_id, $limit = 2 ) {
 		global $wpdb;
 		$columns = self::columns();
@@ -49,7 +52,8 @@ class IBP_Reviews {
 		}
 
 		$table  = self::table();
-		$where  = array( $wpdb->prepare( 'post_id = %d', $post_id ) );
+		$ids    = array_map( 'intval', (array) $post_id ) ?: array( 0 );
+		$where  = array( 'post_id IN (' . implode( ', ', $ids ) . ')' );
 		$select = array( 'id', 'post_id' );
 
 		if ( in_array( 'feed', $columns, true ) ) {
@@ -146,6 +150,7 @@ class IBP_Reviews {
 			'stars'    => self::stars( $row ),
 			'text'     => wp_trim_words( wp_strip_all_tags( (string) ( $row['content'] ?? '' ) ), 30, '…' ),
 			'date'     => $timestamp ? sprintf( '%s önce', human_time_diff( $timestamp ) ) : '',
+			'business' => get_the_title( (int) $row['post_id'] ),
 		);
 	}
 

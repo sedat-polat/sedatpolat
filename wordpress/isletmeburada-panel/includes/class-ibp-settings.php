@@ -20,6 +20,8 @@ class IBP_Settings {
 			'ranking_scale'       => '10',
 			'ranking_min_reviews' => '1',
 			'edit_url'            => '',
+			'sector_map'          => array(),
+			'module_urls'         => array(),
 		);
 	}
 
@@ -33,9 +35,31 @@ class IBP_Settings {
 		return $all[ $key ] ?? null;
 	}
 
+	/**
+	 * Her sekme yalnız kendi alanlarını gönderir; diğer sekmelerin ayarları korunur.
+	 */
 	public static function sanitize( $input ) {
 		$input = is_array( $input ) ? $input : array();
-		$clean = self::defaults();
+		$clean = self::all();
+		$tab   = $input['_tab'] ?? 'general';
+
+		if ( 'sectors' === $tab ) {
+			$profiles             = IBP_Sectors::profiles();
+			$clean['sector_map']  = array();
+			$clean['module_urls'] = array();
+			foreach ( (array) ( $input['sector_map'] ?? array() ) as $term_id => $key ) {
+				if ( '' !== $key && isset( $profiles[ $key ] ) ) {
+					$clean['sector_map'][ absint( $term_id ) ] = $key;
+				}
+			}
+			foreach ( (array) ( $input['module_urls'] ?? array() ) as $module => $url ) {
+				$url = trim( sanitize_text_field( $url ) );
+				if ( '' !== $url && isset( IBP_Sectors::modules()[ $module ] ) ) {
+					$clean['module_urls'][ $module ] = $url;
+				}
+			}
+			return $clean;
+		}
 
 		$clean['post_type']           = sanitize_key( $input['post_type'] ?? $clean['post_type'] ) ?: 'isletme';
 		$clean['default_period']      = in_array( $input['default_period'] ?? '', array( '7', '30', '90' ), true ) ? $input['default_period'] : '30';

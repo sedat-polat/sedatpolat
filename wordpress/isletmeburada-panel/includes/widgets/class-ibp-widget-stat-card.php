@@ -129,7 +129,7 @@ class IBP_Widget_Stat_Card extends IBP_Widget_Base {
 
 		$tracked = in_array( $settings['source'], array_keys( IBP_Tracker::metrics() ), true );
 		if ( $tracked && '' === $change ) {
-			$summary = IBP_Tracker::summary( $business->id, IBP_Tracker::metric_types( $settings['source'] ), IBP_Tracker::period() );
+			$summary = IBP_Tracker::summary( IBP_Business::scope()['ids'], IBP_Tracker::metric_types( $settings['source'] ), IBP_Tracker::period() );
 			$change  = IBP_Tracker::format_change( $summary['change'] );
 			$tone    = null === $summary['change'] ? 'neutral' : ( $summary['change'] < 0 ? 'down' : 'up' );
 			if ( null === $summary['change'] ) {
@@ -157,17 +157,17 @@ class IBP_Widget_Stat_Card extends IBP_Widget_Base {
 	private function value( array $settings, $business ) {
 		if ( isset( IBP_Tracker::metrics()[ $settings['source'] ] ) ) {
 			$types = IBP_Tracker::metric_types( $settings['source'] );
-			return number_format_i18n( IBP_Tracker::summary( $business->id, $types, IBP_Tracker::period() )['total'] );
+			return number_format_i18n( IBP_Tracker::summary( IBP_Business::scope()['ids'], $types, IBP_Tracker::period() )['total'] );
 		}
 		switch ( $settings['source'] ) {
 			case 'rating':
-				$average = $business->review_stats()['average'];
+				$average = IBP_Business::combined_review_stats( IBP_Business::scope()['ids'] )['average'];
 				if ( null === $average ) {
 					return '–';
 				}
 				return number_format_i18n( '10' === $settings['scale'] ? $average * 2 : $average, 1 );
 			case 'reviews':
-				return number_format_i18n( $business->review_stats()['count'] );
+				return number_format_i18n( IBP_Business::combined_review_stats( IBP_Business::scope()['ids'] )['count'] );
 			case 'photos':
 				return number_format_i18n( count( IBP_Business::attachment_ids( $business->field( 'gallery' ) ) ) );
 			default:

@@ -79,6 +79,12 @@ class IBP_Debug {
 			foreach ( array_keys( IBP_Tracker::TYPES ) as $type ) {
 				$report['sayac'][ $type ] = IBP_Tracker::summary( $business->id, $type, 30 );
 			}
+			$report['sektor']         = IBP_Sectors::for_business( $business );
+			$report['marka_agi']      = array(
+				'baglanti'        => IBP_Network::link_of( $business->id ),
+				'bagli_isletmeler' => IBP_Network::children( $business->id ),
+				'bekleyen_istek'  => IBP_Network::children( $business->id, 'pending' ),
+			);
 			$report['siralama']       = IBP_Ranking::for_business( $business );
 			$report['bekleyen_isler'] = wp_list_pluck( $business->todos(), 'title' );
 		}

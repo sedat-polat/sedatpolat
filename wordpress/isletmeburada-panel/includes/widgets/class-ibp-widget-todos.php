@@ -73,7 +73,7 @@ class IBP_Widget_Todos extends IBP_Widget_Base {
 		}
 
 		$settings = $this->get_settings_for_display();
-		$todos    = array_slice( $business->todos( $settings['reviews_url'] ), 0, max( 1, (int) $settings['limit'] ) );
+		$todos    = array_slice( IBP_Business::scope_todos( $settings['reviews_url'] ), 0, max( 1, (int) $settings['limit'] ) );
 		?>
 		<div class="ibp ibp-card">
 			<div class="ibp-card__head">

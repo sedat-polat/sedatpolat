@@ -77,6 +77,8 @@ class IBP_Admin {
 		$tab  = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'status'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tabs = array(
 			'status'   => 'Durum',
+			'sectors'  => 'Sektörler',
+			'network'  => 'Marka ağı',
 			'settings' => 'Ayarlar',
 			'debug'    => 'Tanılama',
 		);
@@ -95,6 +97,12 @@ class IBP_Admin {
 					case 'settings':
 						self::render_settings();
 						break;
+					case 'sectors':
+						self::render_sectors();
+						break;
+					case 'network':
+						self::render_network();
+						break;
 					case 'debug':
 						self::render_debug();
 						break;
@@ -109,7 +117,7 @@ class IBP_Admin {
 
 	private static function notice() {
 		$messages = array(
-			'created'      => array( 'success', 'Panel sayfaları oluşturuldu. Aşağıdan açıp Elementor ile düzenleyebilirsin.' ),
+			'created'      => array( 'success', 'Panel sayfaları oluşturuldu/güncellendi. Aşağıdan açıp Elementor ile düzenleyebilirsin.' ),
 			'flushed'      => array( 'success', 'Şehrin Sahipleri sıralaması yeniden hesaplanacak.' ),
 			'no-elementor' => array( 'error', 'Sayfa oluşturmak için Elementor etkin olmalı.' ),
 		);
@@ -161,14 +169,14 @@ class IBP_Admin {
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-			<p class="description">Menüdeki "İşletme Paneli" ve "İstatistikler" bağlantıları bu sayfalara gider.</p>
+			<p class="description">Menüdeki Genel bakış, İstatistikler ve Bağlı işletmeler bağlantıları bu sayfalara gider.</p>
 		<?php else : ?>
-			<p>Genel bakış ve İstatistikler sayfalarını, tüm widget'lar yerleşmiş ve mobil ayarları yapılmış hâlde oluşturur.</p>
+			<p>Genel bakış, İstatistikler ve Bağlı İşletmeler sayfalarını, tüm widget'lar yerleşmiş ve mobil ayarları yapılmış hâlde oluşturur.</p>
 		<?php endif; ?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:12px"<?php echo $pages ? ' onsubmit="return confirm(\'Bu sayfalarda Elementor ile yaptığın değişiklikler silinip varsayılan düzen yeniden kurulacak. Devam edilsin mi?\')"' : ''; ?>>
 			<input type="hidden" name="action" value="ibp_create_pages">
 			<?php wp_nonce_field( 'ibp_create_pages' ); ?>
-			<?php submit_button( $pages ? 'Sayfaları yeniden oluştur (yeni kopya)' : 'Panel sayfalarını oluştur', $pages ? 'secondary' : 'primary', 'submit', false ); ?>
+			<?php submit_button( $pages ? 'Sayfaları varsayılan düzene sıfırla (eksik sayfayı ekler)' : 'Panel sayfalarını oluştur', $pages ? 'secondary' : 'primary', 'submit', false ); ?>
 		</form>
 
 		<h2 style="margin-top:28px">Widget'lar</h2>
@@ -206,6 +214,7 @@ class IBP_Admin {
 			'Son Yorumlar'       => 'Son Voxel yorumları: kişi, yıldız, tarih, metin.',
 			'Profil Doluluğu'    => '13 alandan kaçının dolu olduğu ve eksikler.',
 			'Etkileşim Dağılımı' => 'Görüntüleyenlerin ne kadarının aradığı, yol tarifi aldığı ya da siteye gittiği.',
+			'Bağlı İşletmeler'   => 'Marka için bağlanma istekleri ve şube/bayi/franchise listesi; alt işletme için "markaya bağlan".',
 		);
 	}
 
@@ -215,6 +224,7 @@ class IBP_Admin {
 		?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'ibp_settings_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( $n ); ?>[_tab]" value="general">
 			<table class="form-table" role="presentation">
 				<tr>
 					<th scope="row"><label for="ibp-pt">İşletme post type anahtarı</label></th>
@@ -257,6 +267,117 @@ class IBP_Admin {
 			</table>
 			<?php submit_button( 'Kaydet' ); ?>
 		</form>
+		<?php
+	}
+
+	private static function render_sectors() {
+		$settings = IBP_Settings::all();
+		$n        = IBP_Settings::OPTION;
+		$taxonomy = IBP_Business::taxonomy_by_label( 'Kategori' );
+		$terms    = $taxonomy ? get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'number' => 500, 'orderby' => 'name' ) ) : array();
+		$profiles = IBP_Sectors::profiles();
+		?>
+		<p>Panel menüsündeki operasyon grubu (Rezervasyonlar, Randevular, Siparişler…) ve "Menü ve fiyatlar" gibi adlar işletmenin kategorisine göre değişir. Kategoriler çoğunlukla <strong>otomatik</strong> eşleşir; yanlış olanı buradan düzelt. Alt kategoriler, eşleştirilmemişse üst kategorinin sektörünü alır.</p>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'ibp_settings_group' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( $n ); ?>[_tab]" value="sectors">
+			<?php if ( is_wp_error( $terms ) || ! $terms ) : ?>
+				<p><em>"Kategori" taksonomisi ya da terimi bulunamadı.</em></p>
+			<?php else : ?>
+				<table class="widefat striped" style="max-width:900px">
+					<thead><tr><th>Kategori</th><th>İşletme</th><th>Sektör menüsü</th><th>Menüde görünecekler</th></tr></thead>
+					<tbody>
+						<?php foreach ( $terms as $term ) : ?>
+							<?php
+							$chosen  = $settings['sector_map'][ $term->term_id ] ?? '';
+							$auto    = IBP_Sectors::guess( $term );
+							$current = $profiles[ $chosen ?: IBP_Sectors::key_for_term( $term ) ];
+							?>
+							<tr>
+								<td><?php echo esc_html( ( $term->parent ? '— ' : '' ) . $term->name ); ?></td>
+								<td><?php echo esc_html( $term->count ); ?></td>
+								<td>
+									<select name="<?php echo esc_attr( $n ); ?>[sector_map][<?php echo esc_attr( $term->term_id ); ?>]">
+										<option value=""><?php echo esc_html( 'Otomatik: ' . ( IBP_Sectors::GENERAL === $auto && $term->parent ? 'üst kategoriden' : $profiles[ $auto ]['name'] ) ); ?></option>
+										<?php foreach ( $profiles as $key => $profile ) : ?>
+											<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $chosen, $key ); ?>><?php echo esc_html( $profile['name'] ); ?></option>
+										<?php endforeach; ?>
+									</select>
+								</td>
+								<td style="color:#6B7280"><?php echo esc_html( $current['ops'] . ': ' . ( implode( ', ', wp_list_pluck( IBP_Sectors::menu_items( $current ), 0 ) ) ?: '—' ) . ' · ' . $current['menu'] ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+
+			<h2 style="margin-top:28px">Modül sayfaları</h2>
+			<p>Bir modülün sayfası hazır olduğunda adresini yaz; menüde "Yakında" yerine bağlantı olarak görünür. Boş bırakılanlar "Yakında" kalır. {edit}, {view}, {id} kısayolları kullanılabilir.</p>
+			<table class="form-table" role="presentation">
+				<?php foreach ( IBP_Sectors::modules() as $key => $module ) : ?>
+					<tr>
+						<th scope="row"><label for="ibp-mod-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $module[1] ); ?></label></th>
+						<td><input id="ibp-mod-<?php echo esc_attr( $key ); ?>" class="regular-text" name="<?php echo esc_attr( $n ); ?>[module_urls][<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( $settings['module_urls'][ $key ] ?? '' ); ?>" placeholder="Yakında"></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+			<?php submit_button( 'Kaydet' ); ?>
+		</form>
+		<?php
+	}
+
+	private static function render_network() {
+		$ids = get_posts(
+			array(
+				'post_type'      => IBP_Business::post_type(),
+				'post_status'    => array( 'publish', 'pending', 'draft', 'private' ),
+				'posts_per_page' => 500,
+				'fields'         => 'ids',
+				'meta_key'       => IBP_Network::PARENT, // phpcs:ignore WordPress.DB.SlowDBQuery
+			)
+		);
+		$result = isset( $_GET['ibp_net'] ) ? sanitize_text_field( wp_unslash( $_GET['ibp_net'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '' !== $result ) {
+			$error = 0 === strpos( $result, 'error:' );
+			printf( '<div class="notice notice-%s"><p>%s</p></div>', $error ? 'error' : 'success', esc_html( $error ? substr( $result, 6 ) : 'İşlem tamamlandı.' ) );
+		}
+		?>
+		<p>İşletmeler panellerindeki <strong>Bağlı İşletmeler</strong> sayfasından bir markaya bağlanma ister; markanın sahibi onaylar. Burada tüm bağlantıları görebilir, gerekirse site yöneticisi olarak onaylayabilir ya da kaldırabilirsin.</p>
+		<?php if ( ! $ids ) : ?>
+			<p><em>Henüz bağlantı ya da istek yok.</em></p>
+			<?php return; ?>
+		<?php endif; ?>
+		<table class="widefat striped" style="max-width:1000px">
+			<thead><tr><th>İşletme</th><th>Marka</th><th>Tür</th><th>Durum</th><th>Tarih</th><th></th></tr></thead>
+			<tbody>
+				<?php foreach ( $ids as $id ) : ?>
+					<?php
+					$link = IBP_Network::link_of( $id );
+					if ( ! $link ) {
+						continue;
+					}
+					$since = (int) get_post_meta( $id, IBP_Network::SINCE, true );
+					?>
+					<tr>
+						<td><a href="<?php echo esc_url( get_permalink( $id ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html( get_the_title( $id ) ); ?></a></td>
+						<td><a href="<?php echo esc_url( get_permalink( $link['parent'] ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html( get_the_title( $link['parent'] ) ); ?></a></td>
+						<td><?php echo esc_html( IBP_Network::types()[ $link['type'] ] ); ?></td>
+						<td><?php echo 'approved' === $link['status'] ? '<span style="color:#15803D">Onaylı</span>' : '<span style="color:#B45309">Onay bekliyor</span>'; ?></td>
+						<td><?php echo esc_html( $since ? wp_date( 'j F Y', $since ) : '' ); ?></td>
+						<td style="white-space:nowrap">
+							<?php foreach ( ( 'pending' === $link['status'] ? array( 'approve' => 'Onayla', 'reject' => 'Reddet' ) : array( 'unlink' => 'Kaldır' ) ) as $action => $label ) : ?>
+								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
+									<?php wp_nonce_field( IBP_Network::NONCE ); ?>
+									<input type="hidden" name="action" value="<?php echo esc_attr( 'ibp_net_' . $action ); ?>">
+									<input type="hidden" name="child" value="<?php echo esc_attr( $id ); ?>">
+									<button type="submit" class="button button-small"><?php echo esc_html( $label ); ?></button>
+								</form>
+							<?php endforeach; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 

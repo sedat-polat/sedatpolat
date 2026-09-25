@@ -113,7 +113,7 @@ class IBP_Widget_Topbar extends IBP_Widget_Base {
 		$business = IBP_Business::current();
 		$user     = wp_get_current_user();
 		$button   = $business ? $business->resolve_url( $settings['button_url'] ) : $settings['button_url'];
-		$count    = ( $business && 'todos' === $settings['bell_badge'] ) ? count( $business->todos() ) : 0;
+		$count    = ( $business && 'todos' === $settings['bell_badge'] ) ? count( IBP_Business::scope_todos() ) : 0;
 		$menu_id  = 'ibp-user-' . $this->get_id();
 
 		$words    = preg_split( '/\s+/u', trim( $user->exists() ? $user->display_name : '' ), -1, PREG_SPLIT_NO_EMPTY );

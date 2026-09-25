@@ -68,7 +68,25 @@ class IBP_Widget_Greeting extends IBP_Widget_Base {
 		$line = wp_date( 'j F l', $now->getTimestamp() ) . '.';
 
 		$business = IBP_Business::current();
-		if ( $business && 'yes' === $settings['show_hours'] ) {
+		$scope    = IBP_Business::scope();
+		if ( $scope['brand'] ) {
+			// Marka görünümünde saat yerine ağın özeti.
+			$counts = array_count_values(
+				array_map(
+					function ( $id ) {
+						return IBP_Network::link_of( $id )['type'];
+					},
+					$scope['children']
+				)
+			);
+			$parts  = array();
+			foreach ( IBP_Network::types() as $type => $label ) {
+				if ( ! empty( $counts[ $type ] ) ) {
+					$parts[] = $counts[ $type ] . ' ' . IBP_Business::lower_tr( $label );
+				}
+			}
+			$line .= sprintf( ' %s markası ve %s bir arada görünüyor.', $business->name(), implode( ', ', $parts ) );
+		} elseif ( $business && 'yes' === $settings['show_hours'] ) {
 			$sentence = IBP_Work_Hours::sentence( $business->today_hours() );
 			if ( $sentence ) {
 				$line .= ' ' . $sentence;

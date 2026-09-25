@@ -15,25 +15,31 @@ class IBP_Page_Builder {
 	const OPTION = 'ibp_pages';
 
 	/**
-	 * @return array{overview:int, stats:int} Oluşturulan sayfa ID'leri.
+	 * Panel sayfalarını oluşturur; daha önce oluşturulmuşsa aynı sayfaları günceller.
+	 *
+	 * @return array{overview:int, stats:int, network:int} Sayfa ID'leri.
 	 */
 	public static function create() {
-		$overview = self::insert_page( 'İşletme Paneli', 'isletme-paneli', 0 );
-		$stats    = self::insert_page( 'İstatistikler', 'istatistikler', $overview );
+		$pages    = self::existing();
+		$overview = $pages['overview'] ?? self::insert_page( 'İşletme Paneli', 'isletme-paneli', 0 );
+		$stats    = $pages['stats'] ?? self::insert_page( 'İstatistikler', 'istatistikler', $overview );
+		$network  = $pages['network'] ?? self::insert_page( 'Bağlı İşletmeler', 'bagli-isletmeler', $overview );
 
 		$urls = array(
 			'overview' => get_permalink( $overview ),
 			'stats'    => get_permalink( $stats ),
+			'network'  => get_permalink( $network ),
 		);
 
 		self::save_elementor( $overview, self::shell( $urls, 'Genel bakış', 'İşletmenin bu dönemki durumu ve bekleyen işler.', self::overview_content( $urls ) ) );
 		self::save_elementor( $stats, self::shell( $urls, 'İstatistikler', 'Profilini kaç kişinin görüp iletişime geçtiği.', self::stats_content() ) );
+		self::save_elementor( $network, self::shell( $urls, 'Bağlı işletmeler', 'Şubeler, bayiler ve franchise\'lar.', array( self::widget( 'ibp-network' ) ) ) );
 
 		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->files_manager ) ) {
 			\Elementor\Plugin::$instance->files_manager->clear_cache();
 		}
 
-		$pages = array( 'overview' => $overview, 'stats' => $stats );
+		$pages = array( 'overview' => $overview, 'stats' => $stats, 'network' => $network );
 		update_option( self::OPTION, $pages );
 		return $pages;
 	}

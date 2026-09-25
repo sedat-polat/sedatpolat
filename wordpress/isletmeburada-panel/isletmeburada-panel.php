@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       İşletmeBurada Panel
  * Description:       İşletme paneli tasarımını Voxel verisiyle çalışan Elementor widget'ları olarak ekler.
- * Version:           0.3.1
+ * Version:           0.4.0
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            İşletmeBurada
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IBP_VERSION', '0.3.1' );
+define( 'IBP_VERSION', '0.4.0' );
 define( 'IBP_FILE', __FILE__ );
 define( 'IBP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IBP_URL', plugin_dir_url( __FILE__ ) );
@@ -22,6 +22,8 @@ require_once IBP_DIR . 'includes/class-ibp-settings.php';
 require_once IBP_DIR . 'includes/class-ibp-icons.php';
 require_once IBP_DIR . 'includes/class-ibp-work-hours.php';
 require_once IBP_DIR . 'includes/class-ibp-business.php';
+require_once IBP_DIR . 'includes/class-ibp-sectors.php';
+require_once IBP_DIR . 'includes/class-ibp-network.php';
 require_once IBP_DIR . 'includes/class-ibp-reviews.php';
 require_once IBP_DIR . 'includes/class-ibp-tracker.php';
 require_once IBP_DIR . 'includes/class-ibp-ranking.php';
@@ -41,6 +43,7 @@ function ibp_boot() {
 	add_action( 'added_post_meta', 'ibp_flush_ranking_on_reviews', 10, 3 );
 
 	IBP_Tracker::init();
+	IBP_Network::init();
 	IBP_Debug::init();
 	if ( is_admin() ) {
 		IBP_Admin::init();
@@ -108,6 +111,7 @@ function ibp_register_widgets( $widgets_manager ) {
 		'reviews'        => 'IBP_Widget_Reviews',
 		'completeness'   => 'IBP_Widget_Completeness',
 		'funnel'         => 'IBP_Widget_Funnel',
+		'network'        => 'IBP_Widget_Network',
 	);
 
 	foreach ( $widgets as $file => $class ) {
